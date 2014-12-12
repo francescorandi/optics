@@ -110,6 +110,8 @@ class OpticalModel:
 						intensity = oscillator['intensity'])
 			elif tipo == "epsilon_infinity":
 				eps += epsilon_infinity(value = oscillator['value'])
+			elif tipo == "pole":
+				s1 += pole(Nu, x0 = oscillator['position'], intensity = oscillator['intensity'])
 		
 		return eps if scalarinput = False else eps[0]
 	
@@ -146,7 +148,7 @@ class OpticalModel:
 		for tipo in Type:
 			if tipo == 'gauss' or tipo == 'lorentz':
 				length = 3
-			elif tipo == 'drude' or tipo == 'extended_drude':
+			elif tipo == 'drude' or tipo == 'extended_drude' or tipo == 'pole':
 				length = 2
 			elif tipo == 'tauc_lorentz':
 				length = 4
@@ -197,6 +199,10 @@ class OpticalModel:
 				Oscillatore.append({'type': Type[m], 
 									'value': SplitParameter[m][0], 
 									'constraints': Constraint[m]})
+			elif Type[m] == 'pole':
+				Oscillator.append({'type': Type[m], 
+									'position': SplitParameter[m][0], 
+									'intensity': SplitParameter[m][1]})
 		
 		return Oscillatore
 	
@@ -239,6 +245,10 @@ class OpticalModel:
 			elif oscillator['type'] == 'epsilon_infinity':
 				Type.append(oscillator['type'])
 				Parameters.append(oscillator['value'])
+			elif oscillator['type'] == 'pole':
+				Type.append(oscillator['type'])
+				Parameters.append(oscillator['position'])
+				Parameters.append(oscillator['intensity'])
 		
 			
 			try:
