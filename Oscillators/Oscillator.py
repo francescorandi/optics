@@ -8,11 +8,21 @@ import numpy as np
 import scipy.constants as constants
 from scipy.constants import physical_constants
 
-class oscillatorModel(object):
+_hbar = physical_constants['natural unit of action in eV s'][0]
+
+class oscillator(object):
     """Base class for all kinds of oscillators."""
     
     def __init__(self):
-        pass
+        
+        # String giving a name to the representation
+        self.representation = None 
+
+        # Attribute for quick lookup for calculated dielectric function values
+        self.dfunc = None
+        
+        # Attribute for quick lookup for calculated spectral weight (SW) value
+        self.SW = None 
     
     def __repr__(self):
         return 'Null Oscillator' #print also the parameters!
