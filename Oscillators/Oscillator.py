@@ -24,8 +24,9 @@ class oscillator(object):
         # Attribute for quick lookup for calculated spectral weight (SW) value
         self.SW = None 
     
+    # Probably __repr__ is not needed here
     def __repr__(self):
-        return 'Null Oscillator' #print also the parameters!
+        return 'Null Oscillator'
         
     def __str__(self):
         return 'Base oscillator object.'
@@ -58,4 +59,12 @@ class oscillator(object):
     def plasmaFrequency(self):
         """Calculates the square of plasma frequency in eV^2 of
         the oscillator given its parameters."""
+        pass
+    
+    def _translate_from_std(self):
+        #Implemented only in non standard representations
+        pass
+    
+    def _translate_to_std(self):
+        #Implemented only in non standard representations
         pass
