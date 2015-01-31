@@ -1,74 +1,112 @@
 import numpy as np
 from scipy import integrate
 
-def real2imag(f, axis, a, b):
+def real2imag(Nu, Y, iNuEval=None):
 	"""Compute the imaginary part g of a causal function of the form
 	f + ig given its real part f.
 	
-	Arguments:
-	f: callable real part (hint, use interp1d)
-	axis: where g will be calculated
-	a: lower integration limit
-	b: upper integration limit
-	
-	Returns g as numpy ndarray calculated on axis.
-	"""
-	I = len(axis)
-	g = np.zeros(I)
-	
-	for i in range(I):
-		nu0 = axis[i]		
-		result, error = integrate.quad(real2imag_integrand, a=a, b=b,
-										args=(nu0, f), epsrel = 1.0e-5)
-		g[i] += nu0*result
-	
-	g *= -2.0 / np.pi
-	
-	return g
-	
-def real2imag_integrand(nu, nu0, f):
-	y = (f(nu) - f(nu0))/(pow(nu,2) - pow(nu0,2))
-	
-	return y
-	
-# Still missing imag2real. To be coded.
-
-def mod2phase(f, axis, a, b):
-	"""Compute the imaginary part g of a causal function of the form
-	log(f) + ig given f.
-	
-	Arguments:
-	f: callable real part (hint, use interp1d)
-	axis: where g will be calculated
-	a: lower integration limit
-	b: upper integration limit
-	
-	Returns g as numpy ndarray calculated on axis.
+	iNuEval must be the array of indexes of Nu where to calculate KK.
 	"""
 	
-	I = len(axis)
-	g = np.zeros(I)
+	if iNuEval==None:
+		iNuEval = np.arange(Nu)
 	
-	for i in range(I):
-		nu0 = axis[i]
-		result, error = integrate.quad(mod2phase_integrand, a=a, b=b,
-										args=(nu0, f), epsrel=1.0e-5)
-		g[i] += nu0*result
+	L = len(iNuEval)
+	NuEval = np.zeros(L)
+	Result = np.zeros(L)
+	for i in range(L):
+		j = iNuEval[i]
+		nuEval = Nu[j]
 		
-	g /= np.pi
+		Integrand = np.divide(Y-Y[j],np.power(Nu,2)-np.power(nuEval,2))
+		
+		result = integrate.simps(Integrand,X=Nu)
+		
+		NuEval[i] = nuEval
+		Result[i] = -2.0 * nuEval / np.pi * result
 	
-def mod2phase_integrand(nu, nu0, f):
-	y = np.log(f(nu) / f(nu0)) / (pow(nu0,2) - pow(nu,2))
+	return NuEval, Result
 	
-	return y
+def imag2real(Nu, Y, iNuEval=None):
+	"""Compute the real part f of a causal function of the form
+	f + ig given its real part g.
 	
-def mod2phase_high_energy_simple(nu, nua, nub, Rnu, Rnua, s, N=10):
+	iNuEval must be the array of indexes of Nu where to calculate KK.
+	"""
+	
+	if iNuEval==None:
+		iNuEval = np.arange(Nu)
+	
+	L = len(iNuEval)
+	NuEval = np.zeros(L)
+	Result = np.zeros(L)
+	for i in range(L):
+		j = iNuEval[i]
+		nuEval = Nu[j]
+		
+		Integrand = 0.0#np.divide(Y-Y[j],np.power(Nu,2)-np.power(nuEval,2))
+		
+		result = integrate.simps(Integrand,X=Nu)
+		
+		NuEval[i] = nuEval
+		Result[i] = -2.0 * nuEval / np.pi * result
+	
+	return NuEval, Result
+
+def mod2phase(Nu, Y, iNuEval=None, Extrapolation="FreeCharges", ExtrapolationParams=None):
+	"""Compute the imaginary part g of a causal function of the form
+	log(f) + ig, i.e. f*exp(ig), given f. High frequency
+	extrapolations are done above the last 
+	
+	iNuEval must be the array of indexes of Nu where to calculate KK.
+	"""
+	
+	if iNuEval==None:
+		iNuEval = np.arange(Nu)
+		
+	L = len(iNuEval)
+	NuEval = np.zeros(L)
+	Result = np.zeros(L)
+	
+	nuLast = Nu[-1]
+	yLast = Y[-1]
+	
+	if Extrapolation=="FreeCharges":
+		#No intermediate region
+		ExtrapolationParams = {'nub': nuLast, 's': 0.0, 'N': 10}
+	
+	if Extrapolation=="Full":
+		#With intermediate region
+		ExtrapolationParams = {'nub': nuLast*2.0, 's': 2.0, 'N': 10}
+
+	for i in range(L):
+		j = iNuEval[i]
+		nuEval = Nu[j]
+		
+		Integrand = np.divide(np.log(Y/Y[j]),np.power(nuEval,2)-np.power(Nu,2))
+		
+		result = integrate.simps(Integrand,X=Nu)
+		resultExtrap = mod2phase_extrapolation_high(nuEval, nuLast, Y[j], yLast, ExtrapolationParams)
+		
+		NuEval[i] = nuEval
+		Result[i] = nuEval / np.pi * result * resultExtrap
+	
+	return NuEval, Result
+	
+def mod2phase_extrapolation_high(nu, nua, Rnu, Rnua, ExtrapolationParams):
 	"""High energy contributions. See Wooten's book, Appendix G."""
-	y = 0.0
+	
+	nub = ExtrapolationParams['nub']
+	s = ExtrapolationParams['s']
+	N = ExtrapolationParams['N']
+	
+	result = 0.0
 	nnua = nu/nua
 	nnub = nu/nub
 	fourms = 4.0 - s
 	for n in np.arange(N):
-		y += (s * pow(nnua,2*n+1) + fourms * pow(nnub, 2*n+1)) / pow(2*n + 1, 2)
-	y *= np.pi
-	y += 1.0/2.0*np.pi*np.log(Rnua/Rnu)*log( (1.0 - nu/nua) / (1.0 + nu/nua) )
+		result += (s * pow(nnua,2*n+1) + fourms * pow(nnub, 2*n+1)) / pow(2*n + 1, 2)
+	result *= np.pi
+	result += 1.0/2.0*np.pi*np.log(Rnua/Rnu)*log( (1.0 - nu/nua) / (1.0 + nu/nua) )
+	
+	return result
