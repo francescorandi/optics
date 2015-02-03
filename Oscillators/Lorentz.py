@@ -3,18 +3,17 @@
 Lorentz family of oscillators.
 """
 
-import math
+import Oscillator
 
+import math
 import numpy as np
 
 import scipy.constants as constants
 from scipy.constants import physical_constants
 
-from Oscillator import oscillator
-
 _hbar = physical_constants['natural unit of action in eV s'][0]
 
-class Lorentz(oscillator):
+class Lorentz(Oscillator.oscillator):
     """Lorentzian lineshape of the form 
     
     .. math::
