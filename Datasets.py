@@ -2,6 +2,7 @@
 """
 Dataset class.
 """
+import matplotlib.pyplot as pyplot
 
 from numpy import array, loadtxt, savetxt, imag, real, dtype
 from scipy.constants import physical_constants
@@ -136,6 +137,11 @@ class Dataset(object):
         """
 
         savetxt(filename, (self.x, self.y), header = header)
+        
+    def plot(self):
+        """Plots the data contained in the dataset."""
+        
+        pyplot.plot(self.x, self.y, label = self.name)
 
 class ReflectivityDataset(Dataset):
     """Reflectivity oriented dataset container."""
@@ -192,6 +198,11 @@ class DielectricFunctionDataset(Dataset):
     def scale(self):
         print("It makes no sense to scale a dielectric function dataset!\n\
             try another operation")
+            
+    def plot(self):
+        """Plots the data contained in the dataset."""
+        pyplot.plot(self.x, real(self.y), label = self.name)
+        pyplot.plot(self.x, imag(self.y), label = self.name)
 
 class EllipsometryDataset(Dataset):
     """Ellipsometry oriented dataset container. Built as a pair of general
@@ -207,11 +218,11 @@ class EllipsometryDataset(Dataset):
     def loadRaw(self, spectraFile):
         x, y1, y2 = loadtxt(spectraFile, unpack = True)
         self.d = (Dataset(x, y1), Dataset(x, y2))
+        
 
 if __name__ == "__main__":
 
     import matplotlib.pyplot as pyplot
-
 
     def plotWindow(*datasets):
         """
