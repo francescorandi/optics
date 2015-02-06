@@ -1,7 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as pyplot
+
 import json
 
-import Oscillators
+from Oscillators import *
 
 OscillatorsList = ("Drude", "Lorentz", "Gauss")
 
@@ -10,7 +12,10 @@ class OpticalModel:
     function.
     """
     
-    def __init__(self):
+    def __init__(self, name):
+        """Optical model built from a collection of oscillators."""
+        
+        self.name = name
         self.oscillators = []
     
     def __str__(self):
@@ -19,7 +24,7 @@ class OpticalModel:
     def show(self):
         """Prints the collection of oscillators composing the model."""
         print("Index\t Oscillator name")
-        print("=======================")
+        print("========================")
         for index, oscillator in enumerate(self.oscillators):
             print("\t".join([str(index), oscillator.Name]))
     
@@ -45,14 +50,14 @@ class OpticalModel:
         """Removes an oscillator give by its index."""
         
         try:
-            self.Oscillators.pop(index)
+            self.oscillators.pop(index)
         except IndexError:
             print("Index out of range")
 		
     def clear(self):
         """Removes all oscillators from the model."""
         
-        self.Oscillators = []
+        self.oscillators = []
 		
     def save(self, filename):
         """Saves the model."""
@@ -71,9 +76,9 @@ class OpticalModel:
         If a particular index is give, it returns only that oscillator."""
         
         if index:
-            return self.Oscillator[index]
+            return self.oscillators[index]
         else:
-            return self.Oscillator
+            return self.oscillators
 	
     def build_from_parameters(self, Parameter, Type, Constraint):
         self.clear()
@@ -90,9 +95,18 @@ class OpticalModel:
 						
         """
         
-        _eps = np.zeros(len(window))
+        _eps = np.zeros(len(window), dtype = complex)
         
-        for oscillator in self.Oscillators:
+        for oscillator in self.oscillators:
             _eps += oscillator.dielectricFunction(window)
             
         return _eps
+    
+    def plot(self, window):
+        """Plots the dielectric function of the model."""
+        
+        # Split e1 and e2 in two different y-axis!
+        pyplot.plot(window, np.real(self.dielectric_function(window)), label = "e1")
+        pyplot.plot(window, np.imag(self.dielectric_function(window)), label = "e2")
+        pyplot.legend(loc=0)
+        pyplot.show()
