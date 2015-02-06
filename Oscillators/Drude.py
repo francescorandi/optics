@@ -3,7 +3,7 @@
 Drude family of oscillators.
 """
 
-import Oscillator
+import Oscillator # Importing the base Class for implementing an oscillator
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from scipy.constants import physical_constants
 
 _hbar = physical_constants['natural unit of action in eV s'][0]
 
-class Drude(Oscillator.oscillator):
+class Drude(Oscillator.oscillator): # Using the base oscillator as parent
     """Drude lineshape of the form 
     
     .. math::

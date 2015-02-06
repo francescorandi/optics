@@ -2,6 +2,7 @@
 """
 Gaussian family of oscillators.
 """
+
 import Oscillator
 
 import numpy as np
