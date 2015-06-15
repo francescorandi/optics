@@ -23,13 +23,10 @@ def tauc_lorentz(x, x0, gamma, gap, intensity):
 	gap = abs(gap)
 	intensity = abs(intensity)
 
+	PI2 = np.pi*2
+	
 	if x > gap:
-		t = intensity 
-			* np.divide(1.0, 2.0 * np.pi * nu) 
-			* 2.0 * np.pi * x0 * gamma
-			* pow((2.0 * np.pi * (nu - gap)),2) 
-			* np.divide(1.0, pow(pow(2.0 * np.pi * nu,2) - pow(2.0 * np.pi * x0,2) 
-				+ pow(2.0 * np.pi * nu * gamma, 2),2))
+		t = intensity * np.divide(1.0, PI2 * nu) * PI2 * x0 * gamma	* pow((PI2 * (nu - gap)),2) * np.divide(1.0, pow(pow(PI2 * nu,2) - pow(PI2 * x0,2) + pow(PI2 * nu * gamma, 2),2))
 	else:
 		t = 0.0
 	
