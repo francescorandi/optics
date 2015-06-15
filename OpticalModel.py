@@ -12,11 +12,21 @@ class OpticalModel:
     function.
     """
     
-    def __init__(self, name):
+    __counter = 0
+    
+    def __init__(self, name = "Optical Model"):
         """Optical model built from a collection of oscillators."""
         
+        type(self).__counter += 1
         self.name = name
         self.oscillators = []
+        
+    def __del__(self):
+        type(self).__counter -= 1
+    
+    @staticmethod    
+    def OpticalModelInstances():
+        return OpticalModel.__counter
     
     def __str__(self):
         pass
@@ -29,7 +39,7 @@ class OpticalModel:
             print("\t".join([str(index), oscillator.Name]))
     
     def add(self, *oscillators):
-        """Add an oscillator to the model.
+        """Add one or more oscillators to the model.
         
         Parameters:
         oscillators: a collection of oscillator objects

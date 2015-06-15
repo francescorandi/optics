@@ -21,9 +21,12 @@ class OpticalSystem:
         """Saves the whole environment as a json file."""
         pass
     
-    def createOpticalModel(self, name):
-        """Creates an optical model with a given name."""
-        self.opticalmodels.append(OpticalModel.OpticalModel())
+    def createOpticalModel(self, name = None):
+        """Creates an optical model with a given name. Name is optional."""
+        if name:
+            self.opticalmodels.append(OpticalModel.OpticalModel(name))
+        else:
+            self.opticalmodels.append(OpticalModel.OpticalModel())
         
     def plotModel(self, opticalmodel, window, step = 0.01):
         """Plots a given optical model.
