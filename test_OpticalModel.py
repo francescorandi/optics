@@ -2,7 +2,7 @@ import OpticalModel, Oscillators.Drude
 import unittest
 
 class OpticalModelAddTest(unittest.TestCase):
-    """Testing the add method in OpticalModel.py."""
+    """Testing the add and addCollection methods in OpticalModel.py."""
 
     def testAddNone(self):
         """Testing adding no oscillator"""
@@ -12,22 +12,14 @@ class OpticalModelAddTest(unittest.TestCase):
         """Testing adding one oscillator."""
         om = OpticalModel.OpticalModel()
         osc1 = Oscillators.Drude.Drude(1,1)
+        om.add(osc1)
         self.assertEqual(om.oscillators[0], osc1)
-
-    def testAddTwo(self):
-        """Testing adding two oscillators."""
-        om = OpticalModel.OpticalModel()
-        osc1 = Oscillators.Drude.Drude(1,1)
-        osc2 = Oscillators.Drude.Drude(2,2)
-        om.add(osc1, osc2)
-        self.assertIn(osc1, om.oscillators)
-        self.assertIn(osc2, om.oscillators)
 
     def testAddListOne(self):
         """Testing adding a list with one oscillator."""
         om = OpticalModel.OpticalModel()
         osc1 = Oscillators.Drude.Drude(1,1)
-        om.add([osc1])
+        om.addCollection([osc1])
         self.assertIn(osc1, om.oscillators)
 
     def testAddListTwo(self):
@@ -35,7 +27,7 @@ class OpticalModelAddTest(unittest.TestCase):
         om = OpticalModel.OpticalModel()
         osc1 = Oscillators.Drude.Drude(1,1)
         osc2 = Oscillators.Drude.Drude(2,2)
-        om.add([osc1, osc2])
+        om.addCollection([osc1, osc2])
         self.assertIn(osc1, om.oscillators)
         self.assertIn(osc2, om.oscillators)
 
@@ -45,7 +37,7 @@ class OpticalModelAddTest(unittest.TestCase):
         osc1 = Oscillators.Drude.Drude(1,1)
         osc2 = Oscillators.Drude.Drude(2,2)
         osc3 = Oscillators.Drude.Drude(3,3)
-        om.add([osc1, osc2, osc3])
+        om.addCollection([osc1, osc2, osc3])
         self.assertIn(osc1, om.oscillators)
         self.assertIn(osc2, om.oscillators)
         self.assertIn(osc3, om.oscillators)
