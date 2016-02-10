@@ -37,7 +37,7 @@ class Drude: # Using the base oscillator as parent
         assert amplitude >= 0
         assert width >= 0
 
-        super().__init__()
+        #super().__init__()
 
         self.amplitude = amplitude
         self.width = width
@@ -45,7 +45,7 @@ class Drude: # Using the base oscillator as parent
         self.representation = "standard"
 
     def __repr__(self):
-        pass
+        return "Drude(amplitude = %d, width = %d)" % (self.amplitude, self.width)
 
     def __str__(self):
         return 'Drude lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
@@ -65,7 +65,7 @@ class Drude: # Using the base oscillator as parent
         return self.dfunc
 
     def spectralWeight(self):
-        """Returns the spectral weight of the oscillator."""
+        """Returns the calculated spectral weight of the oscillator."""
 
         _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
         self.SW = _preFactor*self.amplitude
@@ -121,27 +121,3 @@ class Drude_genosc(Drude):
     def _translate_to_std(self):
         self.width = self._width
         self.amplitude = self._amplitude*self._width
-
-# Legacy code. Not needed because of inheritance. To be removed.
-
-#    def dielectricFunction(self, energy):
-#        """Returns the complex dielectric function at the specified energy.
-#
-#        input
-#        =====
-#
-#        energy: Array specifying the energies to be evaluated.
-#        """
-#
-#        num = -(self._amplitude*self._width)
-#        den = energy**2+1.j*self._width*energy
-#
-#        self.dfunc = num/den
-#
-#        return self.dfunc
-
-#    def spectralWeight(self):
-#        """Returns the spectral weight of the oscillator."""
-#
-#        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
-#        return _preFactor*self._amplitude*self._width

@@ -3,11 +3,7 @@ import matplotlib.pyplot as pyplot
 
 import json
 
-#from Oscillators import *
-
-OscillatorsList = ("Drude", "Lorentz", "Gauss")
-
-class OpticalModel:
+class OpticalModel(object):
     """Class to store and handle the oscillator model of the dielectric
     function.
     """
@@ -46,14 +42,35 @@ class OpticalModel:
     def __str__(self):
         pass
 
+    def __add__(self, other):
+        _tmp = []
+        _tmp.append(self.oscillators)
+        _tmp.append(other.oscillators)
+        return OpticalModel(oscillators = _tmp)
+
+    def __iadd__(self, other):
+        self.oscillators.append(other.oscillators)
+        return self
+
+    def __radd__(self, other):
+        if type(other) is list:
+            self.addCollection(other)
+        else:
+            self.add(other)
+            
+        return self
+
+    def __len__(self):
+        return len(self.oscillators)
+
     def show(self):
         """Prints the collection of oscillators composing the model."""
         print("Index\t Oscillator name")
         print("========================")
         for index, oscillator in enumerate(self.oscillators):
-            print("\t".join([str(index), oscillator.Name]))
+            print("\t".join([str(index), type(oscillator).__init__name__]))
 
-    def add(self, oscillator):
+    def add(self, *oscillator):
         """Add one or more oscillators to the model.
 
         Parameters:
