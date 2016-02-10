@@ -14,12 +14,27 @@ class OpticalModel:
 
     __counter = 0
 
-    def __init__(self, name = "Optical Model"):
-        """Optical model built from a collection of oscillators."""
+    def __init__(self, name = None, desc = None, oscillators = None):
+        """Optical model built from a collection of oscillators.
+
+        inputs (optional):
+            name: name of the model being built.
+            desc: description of the model.
+            oscillators: an iterable of oscillator instances to be added when
+            constructing the optical model."""
 
         type(self).__counter += 1
-        self.name = name
-        self.oscillators = []
+        if name:
+            self.name = name
+        else:
+            self.name = "Optical Model %d" % self.__counter
+
+        self.desc = desc
+
+        if oscillators:
+            self.oscillators = oscillators
+        else:
+            self.oscillators = []
 
     def __del__(self):
         type(self).__counter -= 1

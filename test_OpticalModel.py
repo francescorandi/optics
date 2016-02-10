@@ -42,5 +42,21 @@ class OpticalModelAddTest(unittest.TestCase):
         self.assertIn(osc2, om.oscillators)
         self.assertIn(osc3, om.oscillators)
 
+class OpticalModelTest(unittest.TestCase):
+    """Testing creation, deletion, __str__, and __repr__."""
+
+    def testConstructionEmpty(self):
+        """Indirect test for OpticalModelInstances()"""
+        om = OpticalModel.OpticalModel()
+        self.assertEqual(OpticalModel.OpticalModel.OpticalModelInstances(),1)
+        self.assertEqual(om.oscillators, [])
+        self.assertEqual(self.name, "Optical model 1")
+
+    def test__str__(self):
+        pass
+
+    def test__repr__(self):
+        pass
+
 if __name__ == '__main__':
         unittest.main()
