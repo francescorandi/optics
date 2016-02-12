@@ -4,8 +4,8 @@ import unittest
 class OpticalModelAddTest(unittest.TestCase):
     """Testing the add and addCollection methods in OpticalModel.py."""
 
-    def setUp(self)::
-        om = OpticalModel.OpticalModel()
+    def setUp(self):
+        self.om = OpticalModel.OpticalModel()
 
     def testAddNone(self):
         """Testing adding no oscillator"""
@@ -13,46 +13,46 @@ class OpticalModelAddTest(unittest.TestCase):
 
     def testAddOne(self):
         """Testing adding one oscillator."""
-        osc1 = Oscillators.Drude.Drude(1,1)
-        om.add(osc1)
-        self.assertEqual(om.oscillators[0], osc1)
+        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.om.add(self.osc1)
+        self.assertEqual(self.om.oscillators[0], self.osc1)
 
-    def testAddTwo(self):
-        """Testing adding two oscillators."""
-        osc1 = Oscillators.Drude.Drude(1,1)
-        osc2 = Oscillators.Drude.Drude(2,2)
-        om.addCollection(osc1, osc2)
-        self.assertIn(osc1, om.oscillators)
-        self.assertIn(osc2, om.oscillators)
+    # def testAddTwo(self):
+    #     """Testing adding two oscillators."""
+    #     self.osc1 = Oscillators.Drude.Drude(1,1)
+    #     self.osc2 = Oscillators.Drude.Drude(2,2)
+    #     self.om.add(self.osc1, self.osc2)
+    #     self.assertIn(self.osc1, self.om.oscillators)
+    #     self.assertIn(self.osc2, self.om.oscillators)
 
     def testAddListEmpty(self):
         """Testing adding a list with no oscillators."""
-        om.addCollection([])
-        self.assertEqual(om.oscillators, [])
+        self.om.addCollection([])
+        self.assertEqual(self.om.oscillators, [])
 
     def testAddListOne(self):
         """Testing adding a list with one oscillator."""
-        osc1 = Oscillators.Drude.Drude(1,1)
-        om.addCollection([osc1])
-        self.assertIn(osc1, om.oscillators)
+        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.om.addCollection([self.osc1])
+        self.assertIn(self.osc1, self.om.oscillators)
 
     def testAddListTwo(self):
         """Testing adding a list with two oscillators."""
-        osc1 = Oscillators.Drude.Drude(1,1)
-        osc2 = Oscillators.Drude.Drude(2,2)
-        om.addCollection([osc1, osc2])
-        self.assertIn(osc1, om.oscillators)
-        self.assertIn(osc2, om.oscillators)
+        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.osc2 = Oscillators.Drude.Drude(2,2)
+        self.om.addCollection([self.osc1, self.osc2])
+        self.assertIn(self.osc1, self.om.oscillators)
+        self.assertIn(self.osc2, self.om.oscillators)
 
 class OpticalModelTest(unittest.TestCase):
     """Testing creation, deletion, __str__, and __repr__."""
 
     def testConstructionEmpty(self):
         """Indirect test for OpticalModelInstances()"""
-        om = OpticalModel.OpticalModel()
+        self.om = OpticalModel.OpticalModel()
         self.assertEqual(OpticalModel.OpticalModel.OpticalModelInstances(),1)
-        self.assertEqual(om.oscillators, [])
-        self.assertEqual(self.om.name, "Optical model 1")
+        self.assertEqual(self.om.oscillators, [])
+        self.assertEqual(self.om.name, "Optical Model 1")
 
     def test__str__(self):
         pass
@@ -64,22 +64,22 @@ class OpticalModelBinaryTest(unittest.TestCase):
     """Testing binary operations."""
 
     def setUp(self):
-        om1 = OpticalModel.OpticalModel()
-        om2 = OpticalModel.OpticalModel()
-        osc1 = Oscillators.Drude.Drude(1,1)
-        osc2 = Oscillators.Drude.Drude(2,2)
-        om1.add(osc1)
-        om2.add(osc2)
+        self.om1 = OpticalModel.OpticalModel()
+        self.om2 = OpticalModel.OpticalModel()
+        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.osc2 = Oscillators.Drude.Drude(2,2)
+        self.om1.add(self.osc1)
+        self.om2.add(self.osc2)
 
     def testAdd(self):
-        om3 = om1 + om2
-        self.assertIn(osc1, om3.oscillators)
-        self.assertIn(osc2, om3.oscillators)
+        self.om3 = self.om1 + self.om2
+        self.assertIn(self.osc1, self.om3.oscillators)
+        self.assertIn(self.osc2, self.om3.oscillators)
 
     def testAddInplace(self):
-        om1 += om2
-        self.assertIn(osc1, om1.oscillators)
-        self.assertIn(osc2, om1.oscillators)
+        self.om1 += self.om2
+        self.assertIn(self.osc1, self.om1.oscillators)
+        self.assertIn(self.osc2, self.om1.oscillators)
 
     def testAddReciprocalSingle(self):
         pass

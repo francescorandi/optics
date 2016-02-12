@@ -43,13 +43,10 @@ class OpticalModel(object):
         pass
 
     def __add__(self, other):
-        _tmp = []
-        _tmp.append(self.oscillators)
-        _tmp.append(other.oscillators)
-        return OpticalModel(oscillators = _tmp)
+        return OpticalModel(oscillators = self.oscillators + other.oscillators)
 
     def __iadd__(self, other):
-        self.oscillators.append(other.oscillators)
+        self.oscillators += other.oscillators
         return self
 
     def __radd__(self, other):
@@ -57,7 +54,7 @@ class OpticalModel(object):
             self.addCollection(other)
         else:
             self.add(other)
-            
+
         return self
 
     def __len__(self):
@@ -70,7 +67,7 @@ class OpticalModel(object):
         for index, oscillator in enumerate(self.oscillators):
             print("\t".join([str(index), type(oscillator).__init__name__]))
 
-    def add(self, *oscillator):
+    def add(self, oscillator):
         """Add one or more oscillators to the model.
 
         Parameters:
