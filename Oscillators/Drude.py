@@ -41,7 +41,7 @@ class Drude: # Using the base oscillator as parent
 
         self.amplitude = amplitude
         self.width = width
-        self.energy = 0
+        self.position = 0
 
         self.representation = "standard"
 
