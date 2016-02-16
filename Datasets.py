@@ -23,15 +23,15 @@ class Dataset(object):
         """ Write some documentation. """
 
         self.type = "Generic"
-
+        self.unit = unit
+        self._name = name
+        
         if inputFile:
             self.loadRaw(inputFile, unit)
 
         else:
             self.x = array(x, dtype = float)
             self.y = array(y, dtype = float)
-
-        self._name = name
 
     # How to use decorators to define "setters" and "getters"
     # http://www.python-course.eu/python3_properties.php
@@ -46,10 +46,10 @@ class Dataset(object):
     def name(self, name):
         self._name = name
 
-    def __repr__(self):
-        #Find a better representation
-
-        return str(self.x), str(self.y)
+#    def __repr__(self):
+#        #Find a better representation
+#
+#        return str(self.x), str(self.y)
 
     def __str__(self):
         return self.type+ ' dataset.\n'+ str(self._name)
@@ -75,7 +75,7 @@ class Dataset(object):
         if unit is not 'eV':
             self.x /= unitTransform[unit]
 
-    def clone(self, subset = None, scale = None, shift = None):
+    def clone(self, subset = None, scale = None, shift = None, name = None):
         """Clones/duplicates the dataset."""
 
         #Would it be better to use deepcopy implementing a __deepcopy__ method?
@@ -89,6 +89,11 @@ class Dataset(object):
 
         if subset:
             __clone.subset(*subset)
+        
+        if name:
+            __clone.name = name
+        else:
+            name = "clone of %s" % self.name
 
         #How to deal with the clone afterwards?
         #As it is, it cannot be accessed from the originating instance because
@@ -142,22 +147,32 @@ class Dataset(object):
         """Plots the data contained in the dataset."""
         
         pyplot.plot(self.x, self.y, label = self.name)
+        if self.unit == "eV":
+            pyplot.xlabel("Energy [eV]")
+        elif self.unit == "cm-1":
+            pyplot.xlabel("Wavenumber [cm-1]")
+            
+        if self.name:
+            pyplot.legend(loc=0)
 
 class ReflectivityDataset(Dataset):
     """Reflectivity oriented dataset container."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, inputFile = None, unit = "eV", name = None):
+        super().__init__(inputFile = inputFile, unit = unit, name= name)
         self.type = "Reflectivity"
+    
+    def plot(self):
+        super().plot()
+        pyplot.ylabel("Reflectivity")
+          
 
-    def loadRaw(self, spectraFile):
-        super().loadRaw(spectraFile)
 
 class TransmissionDataset(Dataset):
     """Reflectivity oriented dataset container."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, inputFile = None, unit = "eV", name = None):
+        super().__init__(inputFile = inputFile, unit = unit, name= name)
         self.type = "Transmission"
 
 class DielectricFunctionDataset(Dataset):
@@ -222,7 +237,7 @@ class EllipsometryDataset(Dataset):
 
 if __name__ == "__main__":
 
-    import matplotlib.pyplot as pyplot
+    #import matplotlib.pyplot as pyplot
 
     def plotWindow(*datasets):
         """
