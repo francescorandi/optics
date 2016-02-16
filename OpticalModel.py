@@ -75,10 +75,11 @@ class OpticalModel(object):
 
     def show(self):
         """Prints the collection of oscillators composing the model."""
+        print("Composition of: %s"% self.name)
         print("Index\t Oscillator name")
         print("========================")
         for index, oscillator in enumerate(self.oscillators):
-            print("\t".join([str(index), type(oscillator).__name__]))
+            print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
     def add(self, oscillator):
         """Add one or more oscillators to the model.
@@ -179,7 +180,14 @@ class OpticalModel(object):
         """Plots the dielectric function of the model."""
 
         # Split e1 and e2 in two different y-axis!
-        pyplot.plot(window, np.real(self.dielectric_function(window)), label = "e1")
-        pyplot.plot(window, np.imag(self.dielectric_function(window)), label = "e2")
-        pyplot.legend(loc=0)
+        #from http://matplotlib.org/examples/api/two_scales.html
+        fig, ax1 = pyplot.subplots()
+        ax1.plot(window, np.real(self.dielectric_function(window)), 'g-')
+        ax1.set_ylabel(r'$\varepsilon_1$', color = 'g', fontsize = 22)
+        ax1.set_xlabel('Energy (eV)')
+        ax2 = ax1.twinx()
+        ax2.plot(window, np.imag(self.dielectric_function(window)), 'r-')
+        ax2.set_ylabel(r'$\varepsilon_2$', color = 'r', fontsize = 22)
+        pyplot.title(self.name)
+        #pyplot.legend(loc=0)
         pyplot.show()

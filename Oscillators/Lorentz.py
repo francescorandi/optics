@@ -53,10 +53,7 @@ class Lorentz(object):
         pass
 
     def __str__(self):
-        return 'Lorentz lineshape with \
-                        intensity {:.5f}, \
-                        width {:.5f}, and \
-                        position {:-5f}'.format(self.amplitude, self.width, self.position)
+        return 'Lorentz lineshape with intensity {:.5f}, width {:.5f}, and position {:-5f}'.format(self.amplitude, self.width, self.position)
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
