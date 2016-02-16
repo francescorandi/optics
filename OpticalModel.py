@@ -78,7 +78,7 @@ class OpticalModel(object):
         print("Index\t Oscillator name")
         print("========================")
         for index, oscillator in enumerate(self.oscillators):
-            print("\t".join([str(index), type(oscillator).__init__name__]))
+            print("\t".join([str(index), type(oscillator).__name__]))
 
     def add(self, oscillator):
         """Add one or more oscillators to the model.
@@ -161,6 +161,19 @@ class OpticalModel(object):
         """
 
         return np.sqrt(self.dielectric_function(window))
+
+    def reflectivity(self, window):
+        """Calculates the reflectivity of the model.
+
+        Parameter:
+        window -- Set of points where to calculate the complex refractive index.
+
+        Returns:
+                The calculated complex refractive index.
+        """
+        __n = self.refractive_index(window)
+        return np.abs((__n-1)/(__n+1))**2
+
 
     def plot(self, window):
         """Plots the dielectric function of the model."""

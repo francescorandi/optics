@@ -2,7 +2,7 @@
 """
 Dataset class.
 """
-import matplotlib.pyplot as pyplot
+#import matplotlib.pyplot as pyplot
 
 from numpy import array, loadtxt, savetxt, imag, real, dtype
 from scipy.constants import physical_constants
@@ -19,7 +19,7 @@ unitTransform = {'cm-1': physical_constants[__wavelength][0]/100,
 class Dataset(object):
     """Base class for datasets. Generic type."""
 
-    def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV"):
+    def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV", desc = None):
         """ Write some documentation. """
 
         self.type = "Generic"
@@ -32,6 +32,7 @@ class Dataset(object):
             self.y = array(y, dtype = float)
 
         self._name = name
+        self.description = desc
 
     # How to use decorators to define "setters" and "getters"
     # http://www.python-course.eu/python3_properties.php
@@ -48,29 +49,28 @@ class Dataset(object):
 
     def __repr__(self):
         #Find a better representation
-
         return str(self.x), str(self.y)
 
     def __str__(self):
-        return self.type+ ' dataset.\n'+ str(self._name)
+        return self.type + ' dataset.\n' + str(self._name)
 
-    def loadRaw(self, spectraFile, unit = 'eV'):
+    def loadRaw(self, spectraFile, unit = 'eV', **kwargs):
         """
         Loads the data from a textfile.
 
         If there is an error column, use the flag 'error = True'
 
-        unit: One of the units defined in the list energyUnits. It will
-        transform it into electronvolts (eV).
+        Parameters:
+
+            unit: Defines the energy unit of the imported data.
+            Automatic transformation to eV possible for units listed
+            in the list energyUnits.
+
+            Also possible to use any other argument defined in numpy.loadtxt()
+            (see numpy documentation).
         """
 
-        # How to deal with files with a header?
-        # 1) force the user to use no header
-        # 2) force the user to use always one row header
-        # 3) If there is a header which is a string, the error could be catched
-        # and dealt in some way
-
-        self.x, self.y = loadtxt(spectraFile, unpack = True)
+        self.x, self.y = loadtxt(spectraFile, unpack = True, *kwargs)
 
         if unit is not 'eV':
             self.x /= unitTransform[unit]
@@ -137,10 +137,10 @@ class Dataset(object):
         """
 
         savetxt(filename, (self.x, self.y), header = header)
-        
+
     def plot(self):
         """Plots the data contained in the dataset."""
-        
+
         pyplot.plot(self.x, self.y, label = self.name)
 
 class ReflectivityDataset(Dataset):
@@ -164,12 +164,12 @@ class DielectricFunctionDataset(Dataset):
 
     def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV"):
         """ Some documentation. """
-        
-        self.type = "Dielectric function"        
-        
+
+        self.type = "Dielectric function"
+
         if inputFile:
             self.loadRaw(inputFile, unit)
-        
+
         else:
             self.x = array(x, dtype = float)
             self.y = array(y, dtype = complex)
@@ -194,11 +194,11 @@ class DielectricFunctionDataset(Dataset):
 
         if unit is not 'eV':
             self.x /= unitTransform[unit]
-            
+
     def scale(self):
         print("It makes no sense to scale a dielectric function dataset!\n\
             try another operation")
-            
+
     def plot(self):
         """Plots the data contained in the dataset."""
         pyplot.plot(self.x, real(self.y), label = self.name)
@@ -218,7 +218,7 @@ class EllipsometryDataset(Dataset):
     def loadRaw(self, spectraFile):
         x, y1, y2 = loadtxt(spectraFile, unpack = True)
         self.d = (Dataset(x, y1), Dataset(x, y2))
-        
+
 
 if __name__ == "__main__":
 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         """
 
         pyplot.figure("Loaded spectra")
-        
+
         for dataset in datasets:
 
             if dataset.y.dtype is dtype(complex):
