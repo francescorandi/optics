@@ -60,12 +60,26 @@ class OpticalModel(object):
     def __len__(self):
         return len(self.oscillators)
 
+    def __contains__(self, oscillator):
+        if oscillator in self.oscillators:
+            return True
+        else:
+            return False
+
+    def __iter__(self):
+        for oscillator in self.oscillators:
+            yield oscillator
+
+    def sort(self):
+        self.oscillators.sort(key = lambda oscillator: oscillator.position)
+
     def show(self):
         """Prints the collection of oscillators composing the model."""
+        print("Composition of: %s"% self.name)
         print("Index\t Oscillator name")
         print("========================")
         for index, oscillator in enumerate(self.oscillators):
-            print("\t".join([str(index), type(oscillator).__init__name__]))
+            print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
     def add(self, oscillator):
         """Add one or more oscillators to the model.
@@ -121,14 +135,13 @@ class OpticalModel(object):
         self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
     def dielectric_function(self, window):
-        """Calculates the dielectric of the model.
+        """Calculates the complex dielectric function of the model.
 
         Parameter:
-        window -- Set of points where to calculate the dielectric funtion
+        window -- Set of points where to calculate the dielectric function.
 
         Returns:
-        		The calculated dielectric function.
-
+                The calculated dielectric function.
         """
 
         _eps = np.zeros(len(window), dtype = complex)
@@ -138,11 +151,43 @@ class OpticalModel(object):
 
         return _eps
 
+    def refractive_index(self, window):
+        """Calculates the complex refractive index of the model.
+
+        Parameter:
+        window -- Set of points where to calculate the complex refractive index.
+
+        Returns:
+                The calculated complex refractive index.
+        """
+
+        return np.sqrt(self.dielectric_function(window))
+
+    def reflectivity(self, window):
+        """Calculates the reflectivity of the model.
+
+        Parameter:
+        window -- Set of points where to calculate the complex refractive index.
+
+        Returns:
+                The calculated complex refractive index.
+        """
+        __n = self.refractive_index(window)
+        return np.abs((__n-1)/(__n+1))**2
+
+
     def plot(self, window):
         """Plots the dielectric function of the model."""
 
         # Split e1 and e2 in two different y-axis!
-        pyplot.plot(window, np.real(self.dielectric_function(window)), label = "e1")
-        pyplot.plot(window, np.imag(self.dielectric_function(window)), label = "e2")
-        pyplot.legend(loc=0)
+        #from http://matplotlib.org/examples/api/two_scales.html
+        fig, ax1 = pyplot.subplots()
+        ax1.plot(window, np.real(self.dielectric_function(window)), 'g-')
+        ax1.set_ylabel(r'$\varepsilon_1$', color = 'g', fontsize = 22)
+        ax1.set_xlabel('Energy (eV)')
+        ax2 = ax1.twinx()
+        ax2.plot(window, np.imag(self.dielectric_function(window)), 'r-')
+        ax2.set_ylabel(r'$\varepsilon_2$', color = 'r', fontsize = 22)
+        pyplot.title(self.name)
+        #pyplot.legend(loc=0)
         pyplot.show()

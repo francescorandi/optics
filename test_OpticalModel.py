@@ -1,4 +1,4 @@
-import OpticalModel, Oscillators.Drude
+import OpticalModel, Oscillators.Drude, Oscillators.Gauss
 import unittest
 
 class OpticalModelAddTest(unittest.TestCase):
@@ -86,6 +86,22 @@ class OpticalModelBinaryTest(unittest.TestCase):
 
     def testAddReciprocalList(self):
         pass
+
+class OpticalModelContainerTest(unittest.TestCase):
+
+    def setUp(self):
+        self.om = OpticalModel.OpticalModel()
+        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.osc2 = Oscillators.Gauss.Gauss(2,2,2)
+        self.om.add(self.osc2)
+        self.om.add(self.osc1)
+
+    def testSort(self):
+        self.om.sort()
+        self.assertListEqual(self.om.oscillators, [self.osc1, self.osc2])
+
+    def testContains(self):
+        self.assertTrue(self.osc1 in self.om)
 
 if __name__ == '__main__':
         unittest.main()
