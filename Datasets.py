@@ -33,12 +33,8 @@ class Dataset(object):
             self.x = array(x, dtype = float)
             self.y = array(y, dtype = float)
 
-<<<<<<< HEAD
-=======
-        self._name = name
         self.description = desc
 
->>>>>>> origin/master
     # How to use decorators to define "setters" and "getters"
     # http://www.python-course.eu/python3_properties.php
     # https://docs.python.org/3/library/functions.html#property
@@ -52,16 +48,9 @@ class Dataset(object):
     def name(self, name):
         self._name = name
 
-<<<<<<< HEAD
-#    def __repr__(self):
-#        #Find a better representation
-#
-#        return str(self.x), str(self.y)
-=======
     def __repr__(self):
         #Find a better representation
         return str(self.x), str(self.y)
->>>>>>> origin/master
 
     def __str__(self):
         return self.type + ' dataset.\n' + str(self._name)
