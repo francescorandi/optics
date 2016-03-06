@@ -17,3 +17,9 @@ g = osc.Gauss(1, 0.6, 6)
 print(g)
 om.add(g)
 om.show()
+
+# Establishing the energy window of interest
+energies = np.arange(0.01,8,0.005)
+
+# Plotting the dielectric function
+om.plot(energies)
