@@ -82,7 +82,8 @@ class OpticalModelBinaryTest(unittest.TestCase):
         self.assertIn(self.osc2, self.om1.oscillators)
 
     def testAddReciprocalSingle(self):
-        pass
+        self.om1 += self.osc1
+        self.assertIn(self.osc1, self.om1.oscillators)
 
     def testAddReciprocalList(self):
         pass
