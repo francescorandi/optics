@@ -56,6 +56,9 @@ class OpticalModel(collections.MutableSequence):
         # add check for oscillator subclass instance
         self.oscillators[index] = value
 
+    def __add__(self, other):
+        return OpticalModel(oscillators = self.oscillators + other.oscillators)
+
     def insert(self, index, value):
         # add check for oscillator subclass instance
         self.oscillators.insert(index, value)
