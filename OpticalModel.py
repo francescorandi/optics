@@ -1,9 +1,10 @@
+import collections
 import numpy as np
 import matplotlib.pyplot as pyplot
 
 import json
 
-class OpticalModel(object):
+class OpticalModel(collections.MutableSequence):
     """Class to store and handle the oscillator model of the dielectric
     function.
     """
@@ -42,33 +43,22 @@ class OpticalModel(object):
     def __str__(self):
         pass
 
-    def __add__(self, other):
-        return OpticalModel(oscillators = self.oscillators + other.oscillators)
-
-    def __iadd__(self, other):
-        self.oscillators += other.oscillators
-        return self
-
-    def __radd__(self, other):
-        if type(other) is list:
-            self.addCollection(other)
-        else:
-            self.add(other)
-
-        return self
-
     def __len__(self):
         return len(self.oscillators)
 
-    def __contains__(self, oscillator):
-        if oscillator in self.oscillators:
-            return True
-        else:
-            return False
+    def __getitem__(self, index):
+        return self.oscillators[index]
 
-    def __iter__(self):
-        for oscillator in self.oscillators:
-            yield oscillator
+    def __delitem__(self, i):
+        del self.oscillators[i]
+
+    def __setitem__(self, index, value):
+        # add check for oscillator subclass instance
+        self.oscillators[index] = value
+
+    def insert(self, index, value):
+        # add check for oscillator subclass instance
+        self.oscillators.insert(index, value)
 
     def sort(self):
         self.oscillators.sort(key = lambda oscillator: oscillator.position)
@@ -95,14 +85,6 @@ class OpticalModel(object):
 
        for osc in oscillators:
            self.add(osc)
-
-    def delete(self, index):
-        """Removes an oscillator give by its index."""
-
-        try:
-            self.oscillators.pop(index)
-        except IndexError:
-            print("Index out of range")
 
     def clear(self):
         """Removes all oscillators from the model."""
