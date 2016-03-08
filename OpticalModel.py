@@ -64,12 +64,13 @@ class OpticalModel(collections.MutableSequence):
         self.oscillators.insert(index, value)
 
     def sort(self):
+        """Sorts the oscillators of the model in ascending order by energy."""
         self.oscillators.sort(key = lambda oscillator: oscillator.position)
 
     def show(self):
         """Prints the collection of oscillators composing the model."""
         print("Composition of: %s"% self.name)
-        print("Index\t Oscillator name")
+        print("Index\t Type\t Attributes")
         print("========================")
         for index, oscillator in enumerate(self.oscillators):
             print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
