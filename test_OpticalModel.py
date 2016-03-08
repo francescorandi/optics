@@ -13,14 +13,14 @@ class OpticalModelAddTest(unittest.TestCase):
 
     def testAddOne(self):
         """Testing adding one oscillator."""
-        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.osc1 = Oscillators.Drude(1,1)
         self.om.add(self.osc1)
         self.assertEqual(self.om.oscillators[0], self.osc1)
 
     # def testAddTwo(self):
     #     """Testing adding two oscillators."""
-    #     self.osc1 = Oscillators.Drude.Drude(1,1)
-    #     self.osc2 = Oscillators.Drude.Drude(2,2)
+    #     self.osc1 = Oscillators.Drude(1,1)
+    #     self.osc2 = Oscillators.Drude(2,2)
     #     self.om.add(self.osc1, self.osc2)
     #     self.assertIn(self.osc1, self.om.oscillators)
     #     self.assertIn(self.osc2, self.om.oscillators)
@@ -32,14 +32,14 @@ class OpticalModelAddTest(unittest.TestCase):
 
     def testAddListOne(self):
         """Testing adding a list with one oscillator."""
-        self.osc1 = Oscillators.Drude.Drude(1,1)
+        self.osc1 = Oscillators.Drude(1,1)
         self.om.addCollection([self.osc1])
         self.assertIn(self.osc1, self.om.oscillators)
 
     def testAddListTwo(self):
         """Testing adding a list with two oscillators."""
-        self.osc1 = Oscillators.Drude.Drude(1,1)
-        self.osc2 = Oscillators.Drude.Drude(2,2)
+        self.osc1 = Oscillators.Drude(1,1)
+        self.osc2 = Oscillators.Drude(2,2)
         self.om.addCollection([self.osc1, self.osc2])
         self.assertIn(self.osc1, self.om.oscillators)
         self.assertIn(self.osc2, self.om.oscillators)
@@ -94,8 +94,8 @@ class OpticalModelContainerTest(unittest.TestCase):
 
     def setUp(self):
         self.om = OpticalModel.OpticalModel()
-        self.osc1 = Oscillators.Drude.Drude(1,1)
-        self.osc2 = Oscillators.Gauss.Gauss(2,2,2)
+        self.osc1 = Oscillators.Drude(1,1)
+        self.osc2 = Oscillators.Gauss(2,2,2)
         self.om.add(self.osc2)
         self.om.add(self.osc1)
 
