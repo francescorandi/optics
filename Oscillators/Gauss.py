@@ -2,6 +2,7 @@
 """
 Gaussian family of oscillators.
 """
+from Oscillators.Oscillator import BaseOscillator
 
 import numpy as np
 from math import log, pow, sqrt
@@ -12,7 +13,7 @@ from scipy.constants import physical_constants
 
 _hbar = physical_constants['natural unit of action in eV s'][0]
 
-class Gauss(object):
+class Gauss(BaseOscillator):
     """Gausian lineshape of the form
 
     .. math::
