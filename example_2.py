@@ -42,3 +42,5 @@ plt.show()
 plt.plot(ds.x,ds.y)
 plt.plot(ds.x,ds.inputToType(om.dielectric_function(ds.x)))
 plt.show()
+
+os.save('system.h5')
