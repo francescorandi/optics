@@ -13,6 +13,11 @@ ds.scale(0.9) #error in the data
 plt.plot(ds.x,ds.y)
 plt.show()
 
+#The x axis of the dataset is converted to eV upon loading.
+#The function dataset.xto(unitX) allows to retrieve the x axis of the dataset in units different from eV.
+plt.plot(ds.xto('nm'), ds.y)
+plt.show()
+
 #Create a model
 om = os.createModel()
 
