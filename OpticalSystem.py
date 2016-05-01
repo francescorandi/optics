@@ -1,32 +1,71 @@
 import numpy as np
-import scipy
-import json
-import KramersKronig as kk
-import Oscillators
-import OpticalModel
+from scipy.optimize import minimize
+from . import OpticalModel as OpticalModel
+from . import Datasets as Datasets
+from . import Oscillators as Oscillators
+import h5py
 
 import matplotlib.pyplot as pyplot
 
 class OpticalSystem:
-    
-    __Logger = [""]
-        
+           
     def __init__(self):
         """Initialize the OpticalSystem"""
 
-        self.datasets = [] # List containing the datasets imported
-        self.opticalmodels = [] # List containing the built optical models
+        self.datasets = [] # List containing the imported datasets 
+        self.models = [] # List containing the built optical models
+        self.logger = ""
     
     def save(self, filename):
-        """Saves the whole environment as a json file."""
-        pass
+        """Save everything to an hdf5 file"""
+        f = h5py.File(filename, "w")
+        #Specify in the metadata that it contains a system
+        f.attrs['type'] = 'optics system'
+        
+        #Save models
+        h5models = f.create_group("models")
+        for model in self.models:
+            h5model = h5models.create_group(model.name)
+            model.savetohdf5(h5model)
+                
+        #Save datasets
+        h5datasets = f.create_group("datasets")
+        for i, dataset in enumerate(self.datasets):
+            h5dataset = h5datasets.create_group(str(i))
+            dataset.savetohdf5(h5dataset)
+        f.close()
+        
+    def load(self, filename):
+        """Load everything from an hdf5 file"""
+        f = h5py.File(filename, "r")
+        assert (f.attrs['type']=='optics system'), "This file does not contain a optics system"
+        
+        for name, h5model in f['models'].items():
+            om = self.createModel(name)
+            om.loadfromhdf5(h5model)
+                
+        #Load datasets
+        for i, hd5dataset in f['datasets'].items():
+            dset = Datasets.Dataset()
+            dset.loadfromhdf5(hd5dataset)
+            self.datasets.append(dset)
+        
+        f.close()
     
-    def createOpticalModel(self, name = None):
+    def createModel(self, name = None):
         """Creates an optical model with a given name. Name is optional."""
         if name:
-            self.opticalmodels.append(OpticalModel.OpticalModel(name))
+            om = OpticalModel.OpticalModel(name)
+            self.models.append(om)
         else:
-            self.opticalmodels.append(OpticalModel.OpticalModel())
+            om = OpticalModel.OpticalModel()
+            self.models.append(om)
+        return om
+        
+    def listModels(self):
+        """List the optical models"""
+        for o in self.models:
+            print(o.name)
         
     def plotModel(self, opticalmodel, window, step = 0.01):
         """Plots a given optical model.
@@ -35,17 +74,13 @@ class OpticalSystem:
         p = plt.figure() # check figure extra parameters
         _window = arange(window[0], window[1], step = step)
         p.plot(_window, opticalmodel.dielectric_function(_window))
+        
+    def addData(self, x = None, y = None, name = None, inputFile = None, dataType = None, unitX = "eV", unitY = "Pure", desc = None, **kwargs):
+        self.datasets.append(Datasets.Dataset(x, y, name, inputFile, dataType, unitX, unitY, desc))
+        
+        return self.datasets[-1]
     
-    def add_data(self, X, Y, XUnit=None, YUnit=None, YType=None, YPart=None, Priority=0):
-        #for every new entry, the reflectivity must be calculated from all the old ones,
-        #appended to the new entry and everything must be transformed back to epsilon
-        
-        #add_data saves also the entry in a variable just keeping them together
-        #once all are added, if there is at least one reflectivity without
-        #the phase, all the sigmas and epsilons are used to calculate the reflectivity,
-        #everything is put together and then kramers kroniged to epsilon
-        
-        
+    '''def add_data(self, X, Y, XUnit=None, YUnit=None, YType=None, YPart=None, Priority=0):
         """Add optical data
         
         1st argument: Frequency/Energy/Wavelength axis of the optical
@@ -73,21 +108,21 @@ class OpticalSystem:
         """
         Message = []
         
-        if type(XUnit) == str and XUnit == int self.__conversionsX.keys():
+        if type(XUnit) == str and XUnit == int(self.__conversionsX.keys()):
             X = np.array(X)*self.__conversionsX[XUnit]
-        elif type(XUnit) != str :
-            X = np.array(X)*XUnit
         elif XUnit == None:
             X = np.array(X)
             message = "Assuming X is Frequency in terahertz."
             Message.append(message)
             raise Warning(message)
+        elif type(XUnit) == float or type(XUnit) == int :
+            X = np.array(X)*XUnit
         else:
             raise AssertionError("I was not able to perform the conversion of the X.")
 
         if type(YUnit) == str and YUnit in self.__conversionsY.keys():
             Y = np.array(Y)*self.__conversionsY[YUnit]
-        elif type(YUnit) != str :
+        elif type(YUnit) == float or type(YUnit) == int:
             Y = np.array(Y)*YUnit
         elif YType == 'DielectricFunction' or YType == 'Reflectivity':
             Y = np.array(Y)
@@ -112,25 +147,22 @@ class OpticalSystem:
             Y = Y[0] + 1.0j*Y[1]
             fullcomplex = True
         
-        [sY, sX] = zip(*sorted(zip(X, Y)))
-        X = np.array(sX)
-        Y = np.array(sY)
-        
+        #CREATE DATASET OBJECTS
         if YType == 'DielectricFunction' and fullcomplex:
-            self.__SourceData.append({"Type": 'DielectricFunction', "Part": "Full", 'X': X, 'Y': Y})
-        elif YType == 'DielectricFunction' and YType == None:
-            self.__SourceData.append({'Type': 'DielectricFunction', 'Part': "Real", "X": X, "Y": Y})
-            message = "Assuming that the data is the real part of "+
-                "the dielectric function. If not, delete the "+
+            #self.__SourceData.append({"Type": 'DielectricFunction', "Part": "Full", 'X': X, 'Y': Y})
+        elif YType == 'DielectricFunction' and YPart == None:
+            #self.__SourceData.append({'Type': 'DielectricFunction', 'Part': "Real", "X": X, "Y": Y})
+            message = "Assuming that the data is the real part of "+\
+                "the dielectric function. If not, delete the "+\
                 "oscillator and specify YPart=\"Imag\"."
             Message.append(messagge)
             raise Warning(message)
         elif YType == 'DielectricFunction' and YType == "Imag":
-            self.__SourceData.append({'Type': 'DielectricFunction', "Part": "Imag", 'X': X, 'Y': Y})
+            #self.__SourceData.append({'Type': 'DielectricFunction', "Part": "Imag", 'X': X, 'Y': Y})
         
         # Last thing, to be done for each valid entry: set the
         # priority. This will be used when matching boundary values
-        self.__SourceData[-1]['Priority'] = Priority
+        #self.__SourceData[-1]['Priority'] = Priority
         
         # If you survived up to now, process the Logger prefixing to
         # the messages the __SourceData current index.
@@ -138,203 +170,52 @@ class OpticalSystem:
         for message in Message:
             self.__Logger.append("SourceData "+str(index).zfill(2)+": "+message)
             
-        return True
+        return True'''
     
-    def build_optical_properties(self):
-        #add_data saves also the entry in a variable just keeping them together
-        #once all are added, if there is at least one reflectivity without
-        #the phase, all the sigmas and epsilons are used to calculate the reflectivity,
-        #everything is put together and then kramers kroniged to epsilon
-        
-        # There is one final array of epsilon data to be stored and the interpolated
-        # when called.
-        
-        # When this function is called, compute the lower and upper bound for which
-        # the reflectivity is done, to be able then to call the extrapolation functions
-        # for the kramers kronig. Maybe also intervals in between to data sets..
-        
-        # Check whether they are all full (Re+iIm) dielectric functions.
-        # In case they are, easy go.
-        allepsilon = True
-        allfull = True
-        for data in self.__SourceData:
-            allepsilon = (data['Type']=='DielectricFunction')
-            allfull = (data['Part']=='Full')
-        if allepsilon: self.__Logger.append("I discovered that all the source data sets"+
-            " are dielectric functions.") 
-        if allepsilon and not allfull: self.__Logger.append("However, not all the "+
-            "real and imaginary parts of the dielectric functions were given.") 
-        
-        # If they are all dielectric functions
-        if allepsilon:
-            if not allfull:
-                # What to implement? KK on the single data sets?
-                # Once KKed, save it to the same __SourceData element,
-                # but find a way of lowering the priority of the KKed
-                # for the  matching.
-                raise NotImplementedError("I should perform the kramers "+
-                    "kronig to get the full complex numbers.")
-                    
-            Frequency = np.zeros(0)
-            Epsilon = np.zeros(0)
-            # Should be implemented: matching of boundary values. LOL.
-            # The best thing will be to implement a function that does this on
-            # homogeneous data. Use Priority in __SourceData to take decisions.
-            # This function should maybe also deform the data to preserve
-            # analyticity at the matching points.
-            # When reflectivity and epsilon have to be matched
-            # then take epsilon at the boundary, calculate the would be R(epsilon)
-            # and then match.
-            for data in self.__SourceData:
-                np.concatenate(Frequency,data['X'])
-                np.concatenate(Epsilon,data['Y'])
-            [sEpsilon, sFrequency] = zip(*sorted(zip(Frequency, Epsilon)))
-            self.__Frequency = np.array(sFrequency)
-            self.__Epsilon = np.array(sEpsilon)
-            
-            self.__Logger.append("I successfully built the unified set.")
-            
-            return True
-        
-        # Check whether they all are either dielectric functions or
-        # conductivities.
-        allepsorsigma = True
-        for data in self.__SourceData:
-            if (data['Type']=='DielectricFunction') or (data['Type']=='Conductivity'):
-                allepsorsigma = 
-        self.__Logger.append("I discovered that all the source data sets"+
-                " are dielectric functions.") 
-        
-        
-        return True
-        
+    #move the following two to the dataset    
     def reflectivity_extrapolation_lower(self):
         return 0.0
     
     def reflectivity_extrapolation_upper(self):
         return 0.0
     
-    def save(self, filename):
-        """Dump everything into a json file so that the object can be
-        rebuilt without the processing
-        """
         
-    def load(self, filename):
-        """Load everything from a json file"""
-    
-    def epsilon(self):
-        """This is the main interpolator of the stored epsilon"""
-        
-        return 0.0
-    
-    # These could be moved to a module containing optical relations,
-    # including more complicated things.
-    def get_reflectivity(self, axis):
-        N = sqrt(self.epsilon(axis))
-        r = (N - 1.0)/(N + 1.0)
-        R = pow(abs(r),2)
-        
-        return R
-    
-    def get_epsilon(self, axis):
-        return self.epsilon(axis)
-        
-    def get_epsilon_real(self, axis):
-        return self.epsilon(axis).real
-    
-    def get_epsilon_imag(self, axis):
-        return self.epsilon(axis).imag
-        
-    def get_sigma(self, axis):
-        # Calculate it everytime, there's no need to contain 
-        # computational effort that much.
-        return 0.0
-        
-    def get_sigma_real(self, axis):
-        # Calculate it everytime, there's no need to contain 
-        # computational effort that much.
-        return 0.0
-    
-    def get_sigma_imag(self, axis):
-        # Calculate it everytime, there's no need to contain 
-        # computational effort that much.
-        return 0.0
-        
-    # Methods related to the fit of the dielectric function or 
-    # of the reflectivity
-    
-    def set_guess_oscillator(self, Oscillator):
-        try:
-            iter(Oscillator)
-        else:
-            Oscillator = np.array(Oscillator)
-        
-        self.GuessOscillator.clear()
-        for oscillator in Oscillator:
-            self.GuessOscillator.add_oscillator(oscillator)
-        
-        return True
-    
-    def add_guess_oscillator(self, Oscillator):
-        try:
-            iter(Oscillator)
-        else:
-            Oscillator = np.array(Oscillator)
-        
-        for oscillator in Oscillator:
-            self.GuessOscillator.add_oscillator(oscillator)
-        
-        return True
-        
-    def get_guess_oscillator(self, index=None):
-        if index = None:
-            return self.GuessOscillator
-        else:
-            return self.GuessOscillator[index]
-    
-    def get_fitted_oscillator(self, index=None):
-        if index = None:
-            return self.FitterOscillator        
-        else:
-            return self.FittedOscillator[index]
-        
-    def fit_is_ok(self):
-        """If the fit was ok, deepcopy the FittedOscillator    to 
-        Oscillator.
-        """
-        self.Oscillator = self.FittedOscillator[:]
-        return True    
+    """
+    Methods related to the fits
+    """  
     
     @staticmethod
-    def __fit_error(Parameters, Type, Constraints, data, axis,
-            finalfunction=self.get_epsilon):
-                  
-        osc = OpticalModel.__params2oscillator(Parameters, Type, Constraints)
-        eps = OpticalModel.__dielectricfunction(axis,Oscillator)
-        processed = finalfunction(eps)
+    def __fit_error(params, model, datasets):
         
         e = 0.0
-        e += sum(pow(abs(processed - data),2))
-        #Implement constraints here
+        model.params = params
+        for dataset in datasets:
+            epsilon = model.dielectric_function(dataset.x)
+            processed = dataset.inputToType(epsilon)
+            e += np.sum(np.power(np.absolute(processed - dataset.y),2))
+        
+        #Constraints (should be contained in the model)
 
         return e
     
-    def fit_do(self, axis=None, tobefitted='DielectricFuction', verbose=False):
-        if tobefitted = 'DielectricFunction':
-            ftransform = self.get_epsilon
-        elif tobefitted = 'Refelctivity':
-            ftransform = self.get_reflectivity
+    def fit(self, model, datasets=None, verbose=True):
+        if datasets==None:
+            dsets = self.datasets
+        elif isinstance(datasets, Datasets.Dataset):
+            dsets = [datasets]
+        elif isinstance(datasets[0], Datasets.Dataset):
+            dsets = datasets
+        elif isinstance(datasets[0], int):
+            dsets = []
+            for i in datasets:
+                dsets.append(self.datasets[i])
         
-        if axis == None:
-            axis = self.__Frequency
-            
-        Parametri, Tipi, Constraints = GuessModel.get_parameters()
-        Risultato = optimize.minimize(self.__fit_error, 
-            method="Powell", 
-            x0=Parametri, 
-            args=(Tipi, Constraints, ftransform(), axis), 
+        parameters = model.params
+        print(parameters)
+        Result = minimize(self.__fit_error, 
+            x0=parameters,
+            method="Powell",
+            args=(model, dsets), 
             jac=False)
-        self.FittedOscillator = OpticalModel.__params2oscillator(
-            Risultato['x'], Tipi, Constraints)
         
-        return True if verbose = False else self.FittedOscillator 
+        return True if verbose == False else model.show()

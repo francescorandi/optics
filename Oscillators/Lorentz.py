@@ -26,7 +26,9 @@ class Lorentz(object):
         $E_c$ energy center (eV).
     """
 
-    def __init__(self, amplitude, width, position):
+    _nparams = 3
+
+    def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Lorentz lineshape.
 
         input
@@ -54,6 +56,49 @@ class Lorentz(object):
 
     def __str__(self):
         return 'Lorentz lineshape with intensity {:.5f}, width {:.5f}, and position {:-5f}'.format(self.amplitude, self.width, self.position)
+        
+    @property
+    def amplitude(self):
+        return self._amplitude
+    
+    @amplitude.setter
+    def amplitude(self, a):
+        self._amplitude = abs(a)
+        
+    @property
+    def width(self):
+        return self._width
+        
+    @width.setter
+    def width(self, w):
+        self._width = abs(w)
+        
+    @property
+    def position(self):
+        return self._position
+        
+    @position.setter
+    def position(self, p):
+        self._position = abs(p)
+        
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+       
+    @params.setter 
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+        
+    @property
+    def spectralWeight(self):
+        """Returns the spectral weight of the oscillator."""
+
+        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        self.SW = _preFactor*self.amplitude*self.energy*self.width
+
+        return self.SW
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -69,11 +114,3 @@ class Lorentz(object):
         self.dfunc = self.amplitude * np.divide(self.width * self.position, _den)
 
         return self.dfunc
-
-    def spectralWeight(self):
-        """Returns the spectral weight of the oscillator."""
-
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
-        self.SW = _preFactor*self.amplitude*self.energy*self.width
-
-        return self.SW

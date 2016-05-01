@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
+from . import Oscillators as Oscillators
 
 import json
 
@@ -69,6 +70,20 @@ class OpticalModel(object):
     def __iter__(self):
         for oscillator in self.oscillators:
             yield oscillator
+            
+    @property
+    def params(self):
+        P = []
+        for oscillator in self.oscillators:
+            P.extend(oscillator.params)
+            
+        return P
+    
+    @params.setter    
+    def params(self, P):
+        for oscillator in self.oscillators:
+            oscillator.params = P[0:oscillator._nparams]
+            np.delete(P, slice(0,oscillator._nparams))
 
     def sort(self):
         self.oscillators.sort(key = lambda oscillator: oscillator.position)
@@ -120,6 +135,40 @@ class OpticalModel(object):
             json.dump(self.oscillators, f)
             f.close()
             print("Model is saved as: ", filename)
+            
+    def savetohdf5(self, hdf5):
+        """
+        Saves model to hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.save()).
+        
+        hdf5 can either be the filename or an hdf5 group.
+        """
+        if isinstance(hdf5, str):
+            hdf5 = h5py.File(hdf5, "w")
+            
+        for i, oscillator in enumerate(self.oscillators):
+                h5osc = hdf5.create_group(str(i))
+                h5osc.attrs['type'] = oscillator.__class__.__name__
+                h5osc.create_dataset("params", data=oscillator.params)
+                
+        return True
+                
+    def loadfromhdf5(self, hdf5):
+        """
+        Loads model from hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.load()).
+        
+        hdf5 can either be the filename or an hdf5 group.
+        """
+        if isinstance(hdf5, str):
+            hdf5 = h5py.File(hdf5, "r")
+            
+        for idx, h5osc in hdf5.items():
+            osc = getattr(Oscillators, h5osc.attrs['type'])()
+            osc.params = h5osc['params'][:]
+            self.add(osc)
+            
+        return True
 
     def get(self, index = None):
         """Returns the list of oscillators composing the model.
@@ -129,10 +178,6 @@ class OpticalModel(object):
             return self.oscillators[index]
         else:
             return self.oscillators
-
-    def build_from_parameters(self, Parameter, Type, Constraint):
-        self.clear()
-        self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
     def dielectric_function(self, window):
         """Calculates the complex dielectric function of the model.
@@ -144,7 +189,8 @@ class OpticalModel(object):
                 The calculated dielectric function.
         """
 
-        _eps = np.zeros(len(window), dtype = complex)
+        #_eps = np.zeros(len(window), dtype = np.cfloat)
+        _eps = np.ones(len(window), dtype = np.cfloat)
 
         for oscillator in self.oscillators:
             _eps += oscillator.dielectricFunction(window)

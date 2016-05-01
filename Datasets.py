@@ -2,36 +2,76 @@
 """
 Dataset class.
 """
-#import matplotlib.pyplot as pyplot
 
-from numpy import array, loadtxt, savetxt, imag, real, dtype
+from numpy import array, loadtxt, savetxt, imag, real, dtype, cfloat
 from scipy.constants import physical_constants
+from . import relations
+import warnings #To be removed?
+import h5py
+                 
+_availableDataTypes = [
+    "reflectivity",
+    "transmittivity",
+    "dielectric function",
+    "conductivity",
+    "ellipsometric angles",
+    "pseudo dielectric function",
+    "n k",
+]
 
-energyUnits = ('eV', 'cm-1', 'THz') #List of energy units available
+_relationsToEpsilon = {
+    "reflectivity": "reflectivity",
+    "transmittivity": "",
+    "dielectric function": "identity",
+    "conductivity": "conductivity",
+    "ellipsometric angles": "",
+    "pseudo dielectric function": "",
+    "n k": "refractive_index",
+}
 
-__wavelength = 'electron volt-inverse meter relationship'
-__herz = 'electron volt-hertz relationship'
+_availableDataTypesVariants = {
+    "reflectivity": 0,
+    "R": 0,
+    "transmittivity": 1,
+    "transmission": 1,
+    "dielectric function": 3,
+    "dielectricfunction": 3,
+    "epsilon": 3,
+    "conductivity": 4,
+    "sigma": 4,
+    "ellipsometric angles": 5,
+    "pseudo dielectric function": 6,
+    "n k": 7
+}
 
-unitTransform = {'cm-1': physical_constants[__wavelength][0]/100,
-                 'THz': physical_constants[__herz][0]/10**12,
-                 'eV': 1}
+def availableTypes():
+    message = "The available dataTypes available are: "
+    for element in _availableDataTypes:
+        message += element+", "
+    print(message)    
 
 class Dataset(object):
     """Base class for datasets. Generic type."""
 
-    def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV", desc = None):
+    def __init__(self, x = None, y = None, name = None, inputFile = None, dataType = None, unitX = "eV", unitY = "Pure", desc = '', **kwargs):
         """ Write some documentation. """
+        
+        if unitX not in relations.availableEnergyUnits:
+            raise relations.NotImplemented("Conversion from "+unitX+" to eV not implemented. \
+                Please pass x as either of the following: "+[u for u in relations.availableEnergyUnits])     
 
-        self.type = "Generic"
-        self.unit = unit
-        self._name = name
+        self.type = dataType
+        self.unitX = unitX
+        self.unitY = unitY
+        self.name = name
         
         if inputFile:
-            self.loadRaw(inputFile, unit)
-
+            self.loadData(inputFile, unitX = unitX, **kwargs)
         else:
             self.x = array(x, dtype = float)
-            self.y = array(y, dtype = float)
+            self.y = array(y, dtype = cfloat)
+            
+        if x is not None: self.convertX()
 
         self.description = desc
 
@@ -47,15 +87,26 @@ class Dataset(object):
     @name.setter
     def name(self, name):
         self._name = name
+        
+    @property
+    def type(self):
+        return self._type
+        
+    @type.setter
+    def type(self, dataType):
+        if dataType in _availableDataTypesVariants:
+            self._type = _availableDataTypes[_availableDataTypesVariants[dataType]]
+        else:
+            warnings.warn("The specified dataType is not allowed.")            
 
     def __repr__(self):
         #Find a better representation
         return str(self.x), str(self.y)
 
     def __str__(self):
-        return self.type + ' dataset.\n' + str(self._name)
+        return str(self.type) + ' dataset.\n' + str(self._name)
 
-    def loadRaw(self, spectraFile, unit = 'eV', **kwargs):
+    def loadData(self, spectraFile, unitX = 'eV', **kwargs):
         """
         Loads the data from a textfile.
 
@@ -72,11 +123,33 @@ class Dataset(object):
         """
 
         self.x, self.y = loadtxt(spectraFile, unpack = True, *kwargs)
+        self.unitX = unitX
+        
+        if self.unitX is not 'eV':
+            self.convertX()
+        
+    def convertX(self):
+        """Converts the x axis to eV at init/loading."""
+        if self.unitX is not 'eV':
+            try:
+                self.x = relations.xtoeV(self.x, self.unitX)
+                self.unitX = 'eV'
+            except relations.NotImplemented:
+                print("Conversion from "+self.unitX+" to eV not implemented.")
+                
+    def xto(self, unitX):
+        """Returns the x axis in the specified units."""
+        
+        return relations.eVtox(self.x, unitX)
+        
+    def inputToType(self, data):
+        """Function to convert external data calculated on self.x to the data type of this dataset."""
+        converted = getattr(relations, _relationsToEpsilon[self.type])(data)
+        
+        return converted
+        
 
-        if unit is not 'eV':
-            self.x /= unitTransform[unit]
-
-    def clone(self, subset = None, scale = None, shift = None, name = None):
+    '''def clone(self, subset = None, scale = None, shift = None, name = None):
         """Clones/duplicates the dataset."""
 
         #Would it be better to use deepcopy implementing a __deepcopy__ method?
@@ -103,7 +176,7 @@ class Dataset(object):
         #Maybe this will be reason enough to go for __deepcopy__ method which
         #also could be used to copy all metadata.
 
-        return __clone
+        return __clone'''
 
     def subset(self, window, stride = 1):
         """Takes a subset of the data available."""
@@ -126,15 +199,59 @@ class Dataset(object):
         self.x += shift
 
     # Not sure if load and save belong here or to a "higher" level component
-    def load(self, datafile):
+    def loadfromjson(self, datafile):
         """Loads json datafile. Includes all metadata."""
         pass
 
-    def save(self, filename):
-        """Saves dataset """
-        pass
+    def loadfromhdf5(self, hdf5):
+        """
+        Load dataset from hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.load()).
+        
+        hdf5 can either be the filename or an hdf5 group
+        """
+        if isinstance(hdf5, str):
+            hdf5 = h5py.File(hdf5, "r")
+        
+        self.x = hdf5['x'][:]
+        if hdf5.attrs['dtype'] == 'complex':
+            self.y = hdf5['y.real'][:] + 1.0j*hdf5['y.imag'][:]
+        if hdf5.attrs['dtype'] == 'real':
+            self.y = hdf5['y'][:]
+        
+        self.name = hdf5.attrs['name']
+        self.type = hdf5.attrs['type']
+        self.unitX = hdf5.attrs['unitX']
+        self.unitY = hdf5.attrs['unitY']
+        self.description = hdf5.attrs['description']
+        
+    
+    def savetohdf5(self, hdf5):
+        """
+        Saves dataset to hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.save()).
+        
+        hdf5 can either be the filename or an hdf5 group
+        """
+        if isinstance(hdf5, str):
+            hdf5 = h5py.File(hdf5, "w")
+        
+        hdf5.create_dataset("x", data=self.x)
+        
+        if isinstance(self.y, cfloat) or isinstance(self.y[0], cfloat):
+            hdf5.create_dataset("y.real", data=self.y.real)
+            hdf5.create_dataset("y.imag", data=self.y.imag)
+            hdf5.attrs['dtype'] = 'complex'
+        else:
+            hdf5.create_dataset("y", data=self.y)
+            hdf5.attrs['dtype'] = 'real'
+        hdf5.attrs['name'] = self.name
+        hdf5.attrs['type'] = self.type
+        hdf5.attrs['unitX'] = self.unitX
+        hdf5.attrs['unitY'] = self.unitY
+        hdf5.attrs['description'] = (self.description if self.description else '')
 
-    def export(self, filename, header = None):
+    def savetotxt(self, filename, header = None):
         """Exports the dataset as a two column (x,y) text file with header
         optional.
 
@@ -143,119 +260,3 @@ class Dataset(object):
         """
 
         savetxt(filename, (self.x, self.y), header = header)
-
-    def plot(self):
-        """Plots the data contained in the dataset."""
-
-        pyplot.plot(self.x, self.y, label = self.name)
-        if self.unit == "eV":
-            pyplot.xlabel("Energy [eV]")
-        elif self.unit == "cm-1":
-            pyplot.xlabel("Wavenumber [cm-1]")
-            
-        if self.name:
-            pyplot.legend(loc=0)
-
-class ReflectivityDataset(Dataset):
-    """Reflectivity oriented dataset container."""
-
-    def __init__(self, inputFile = None, unit = "eV", name = None):
-        super().__init__(inputFile = inputFile, unit = unit, name= name)
-        self.type = "Reflectivity"
-    
-    def plot(self):
-        super().plot()
-        pyplot.ylabel("Reflectivity")
-          
-
-
-class TransmissionDataset(Dataset):
-    """Reflectivity oriented dataset container."""
-
-    def __init__(self, inputFile = None, unit = "eV", name = None):
-        super().__init__(inputFile = inputFile, unit = unit, name= name)
-        self.type = "Transmission"
-
-class DielectricFunctionDataset(Dataset):
-
-    def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV"):
-        """ Some documentation. """
-
-        self.type = "Dielectric function"
-
-        if inputFile:
-            self.loadRaw(inputFile, unit)
-
-        else:
-            self.x = array(x, dtype = float)
-            self.y = array(y, dtype = complex)
-
-        self._name = name
-
-    def loadRaw(self, spectraFile, unit = 'eV'):
-        """
-        Loads the dielectric function values from a textfile.
-
-        unit: One of the units defined in the list energyUnits. It will
-        transform it into electronvolts (eV).
-        """
-
-        # How to deal with files with a header?
-        # This code is very much like the parent one, how can it be better
-        # factorized?
-
-        self.x, self._y1, self._y2 = loadtxt(spectraFile, unpack = True)
-
-        self.y = self._y1+1j*self._y2
-
-        if unit is not 'eV':
-            self.x /= unitTransform[unit]
-
-    def scale(self):
-        print("It makes no sense to scale a dielectric function dataset!\n\
-            try another operation")
-
-    def plot(self):
-        """Plots the data contained in the dataset."""
-        pyplot.plot(self.x, real(self.y), label = self.name)
-        pyplot.plot(self.x, imag(self.y), label = self.name)
-
-class EllipsometryDataset(Dataset):
-    """Ellipsometry oriented dataset container. Built as a pair of general
-    datasets, one for each value."""
-
-    ellipTypes = ("ellipsometric angles", "pseudo dielectrc function", "n\&k")
-
-    def __init__(self, ellipType):
-        super().__init__()
-        self.type = "Ellipsometry"
-        self.ellipType = ellipType
-
-    def loadRaw(self, spectraFile):
-        x, y1, y2 = loadtxt(spectraFile, unpack = True)
-        self.d = (Dataset(x, y1), Dataset(x, y2))
-
-
-if __name__ == "__main__":
-
-    #import matplotlib.pyplot as pyplot
-
-    def plotWindow(*datasets):
-        """
-        Plots the loaded spectra for visual inspection. Takes one or many
-        datasets and plots them in the same window.
-        """
-
-        pyplot.figure("Loaded spectra")
-
-        for dataset in datasets:
-
-            if dataset.y.dtype is dtype(complex):
-                pyplot.plot(dataset.x, real(dataset.y), label = dataset.name)
-                pyplot.plot(dataset.x, imag(dataset.y), label = dataset.name)
-
-            else:
-                pyplot.plot(dataset.x, dataset.y, label = dataset.name)
-
-        pyplot.legend(loc=0)
-        pyplot.show()

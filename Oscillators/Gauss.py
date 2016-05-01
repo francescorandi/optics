@@ -25,8 +25,9 @@ class Gauss(object):
 
 
     """
+    _nparams = 3
 
-    def __init__(self, amplitude, width, position):
+    def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Gaussian lineshape as described in
         D. De Sousa Meneses, J. Non-Cryst. Solids 351 no.2 (2006) 769-776
 
@@ -55,6 +56,49 @@ class Gauss(object):
 
     def __str__(self):
         return 'Gaussian lineshape with intensity {:.5f}, width {:.5f}, and position {:.5f}'.format(self.amplitude, self.width, self.position)
+    
+    @property
+    def amplitude(self):
+        return self._amplitude
+    
+    @amplitude.setter
+    def amplitude(self, a):
+        self._amplitude = abs(a)
+        
+    @property
+    def width(self):
+        return self._width
+        
+    @width.setter
+    def width(self, w):
+        self._width = abs(w)
+        
+    @property
+    def position(self):
+        return self._position
+        
+    @position.setter
+    def position(self, p):
+        self._position = abs(p)
+        
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+       
+    @params.setter 
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+    
+    @property
+    def spectralWeight(self):
+        """Returns the spectral weight of the oscillator."""
+
+        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        self.SW = _preFactor*self.amplitude
+
+        return self.SW
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -82,14 +126,6 @@ class Gauss(object):
 
         return _real + 1.j*_imag
 
-    def spectralWeight(self):
-        """Returns the spectral weight of the oscillator."""
-
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
-        self.SW = _preFactor*self.amplitude
-
-        return self.SW
-
 class Gauss_genosc(Gauss):
     """Gaussian lineshapeof the form
 
@@ -105,8 +141,10 @@ class Gauss_genosc(Gauss):
         and \epsilon_1 is determined via Dawson function Kronig-Kramers
         consistent.
     """
+    
+    _nparams = 3
 
-    def __init__(self, amplitude, energy, width):
+    def __init__(self, amplitude=0.0, energy=0.0, width=0.0):
         """Defines a Gaussian lineshape as described in
         D. De Sousa Meneses, J. Non-Cryst. Solids 351 no.2 (2006) 769-776
 
@@ -128,6 +166,40 @@ class Gauss_genosc(Gauss):
 
     def __repr__(self):
         return 'Gaussian lineshape' #print also the parameters!
+        
+    @property
+    def amplitude(self):
+        return self._amplitude
+    
+    @amplitude.setter
+    def amplitude(self, a):
+        self._amplitude = abs(a)
+        
+    @property
+    def width(self):
+        return self._width
+        
+    @width.setter
+    def width(self, w):
+        self._width = abs(w)
+        
+    @property
+    def position(self):
+        return self._position
+        
+    @position.setter
+    def position(self, p):
+        self._position = abs(p)
+        
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+       
+    @params.setter 
+    def params(self, p):
+        self.amplitude = abs(p[0])
+        self.width = abs(p[1])
+        self.position = abs(p[2])
 
     def dielectricFunction(self, energy):
         """
@@ -172,7 +244,7 @@ class Gauss_genosc(Gauss):
 
 
     def __str__(self):
-        return 'Gaussian (VWase/genosc) lineshape with intensity {:.5f}, width {:.5f} and psition {:.5f}'.format(self.amplitude, self.width, self.position)
+        return 'Gaussian (VWase/genosc) lineshape with intensity {:.5f}, width {:.5f} and psition {:.5f}'.format(self.amplitude, self.width, self.position)  
 
     # Placeholder for translation layer, TBD!
     def _translate_from_std(self):

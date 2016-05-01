@@ -25,8 +25,10 @@ class Tauc:
 
 
     """
+    
+    _nparams = 4
 
-    def __init__(self, amplitude, width, position, gap):
+    def __init__(self, amplitude=0.0, width=0.0, position=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
         FIND REFERENCE
 
@@ -58,6 +60,38 @@ class Tauc:
 
     def __str__(self):
         return 'Tauc-Lorentz lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
+        
+    property
+    def amplitude(self):
+        return self._amplitude
+    
+    @amplitude.setter
+    def amplitude(self, a):
+        self._amplitude = abs(a)
+        
+    @property
+    def width(self):
+        return self._width
+        
+    @width.setter
+    def width(self, w):
+        self._width = abs(w)
+        
+    @property
+    def position(self):
+        return self._position
+        
+    @position.setter
+    def position(self, p):
+        self._position = abs(p)
+        
+    @property
+    def gap(self):
+        return self._g
+        
+    @gap.setter
+    def gap(self, g):
+        self._g = abs(g)
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -74,6 +108,17 @@ class Tauc:
         """Returns the spectral weight of the oscillator."""
 
         pass
+        
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position, self.gap]
+       
+    @params.setter 
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+        self.gap = p[3]
 
 class Tauc_genosc(Tauc):
     """Tauc-Lorentz lineshapeof the form
@@ -90,8 +135,10 @@ class Tauc_genosc(Tauc):
 
         and \epsilon_1 is determined via Kronig-Kramers.
     """
+    
+    _nparams = 4
 
-    def __init__(self, amplitude, energy, width, gap):
+    def __init__(self, amplitude=0.0, energy=0.0, width=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
         FIX! Reutilize better code from the parent class!
 
@@ -167,6 +214,17 @@ class Tauc_genosc(Tauc):
 
         else:
             pass
+            
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position, self.gap]
+       
+    @params.setter 
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+        self.gap = p[3]
 
     def __str__(self):
         return 'Tauc-Lorentz (VWase/genosc) lineshape with intensity {:.5f}, width {:.5f} and psition {:.5f}'.format(self.amplitude, self.width, self.position)
