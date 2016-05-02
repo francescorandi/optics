@@ -41,7 +41,7 @@ class OpticalModel(object):
         return OpticalModel.__counter
 
     def __str__(self):
-        pass
+        return str(self.name)
 
     def __add__(self, other):
         return OpticalModel(oscillators = self.oscillators + other.oscillators)
@@ -70,16 +70,16 @@ class OpticalModel(object):
     def __iter__(self):
         for oscillator in self.oscillators:
             yield oscillator
-            
+
     @property
     def params(self):
         P = []
         for oscillator in self.oscillators:
             P.extend(oscillator.params)
-            
+
         return P
-    
-    @params.setter    
+
+    @params.setter
     def params(self, P):
         for oscillator in self.oscillators:
             oscillator.params = P[0:oscillator._nparams]
@@ -135,39 +135,39 @@ class OpticalModel(object):
             json.dump(self.oscillators, f)
             f.close()
             print("Model is saved as: ", filename)
-            
+
     def savetohdf5(self, hdf5):
         """
         Saves model to hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.save()).
-        
+
         hdf5 can either be the filename or an hdf5 group.
         """
         if isinstance(hdf5, str):
             hdf5 = h5py.File(hdf5, "w")
-            
-        for i, oscillator in enumerate(self.oscillators):
-                h5osc = hdf5.create_group(str(i))
+
+        for index, oscillator in enumerate(self.oscillators):
+                h5osc = hdf5.create_group(str(index))
                 h5osc.attrs['type'] = oscillator.__class__.__name__
                 h5osc.create_dataset("params", data=oscillator.params)
-                
+
         return True
-                
+
     def loadfromhdf5(self, hdf5):
         """
         Loads model from hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.load()).
-        
+
         hdf5 can either be the filename or an hdf5 group.
         """
         if isinstance(hdf5, str):
             hdf5 = h5py.File(hdf5, "r")
-            
+
         for idx, h5osc in hdf5.items():
             osc = getattr(Oscillators, h5osc.attrs['type'])()
             osc.params = h5osc['params'][:]
             self.add(osc)
-            
+
         return True
 
     def get(self, index = None):
