@@ -16,11 +16,20 @@ class OpticalSystem(object):
         self.models = [] # List containing the built optical models
         self.logger = ""
 
+    @property
+    def description(self):
+        return self._desc
+
+    @amplitude.setter
+    def description(self, a):
+        self._desc = str(a)
+
     def save(self, filename):
         """Save everything to an hdf5 file"""
         f = h5py.File(filename, "w")
         #Specify in the metadata that it contains a system
         f.attrs['type'] = 'optics system'
+        f.attrs['desc'] = self._desc
 
         #Save models
         h5models = f.create_group("models")

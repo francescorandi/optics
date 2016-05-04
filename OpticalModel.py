@@ -136,15 +136,17 @@ class OpticalModel(object):
             f.close()
             print("Model is saved as: ", filename)
 
-    def savetohdf5(self, hdf5):
+    def savetohdf5(self, target):
         """
         Saves model to hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.save()).
 
         hdf5 can either be the filename or an hdf5 group.
         """
-        if isinstance(hdf5, str):
-            hdf5 = h5py.File(hdf5, "w")
+
+        #Testing if target is a string, if true creates an hdf5 file.
+        if isinstance(target, str):
+            hdf5 = h5py.File(target, "w")
 
         for index, oscillator in enumerate(self.oscillators):
                 h5osc = hdf5.create_group(str(index))
@@ -153,15 +155,15 @@ class OpticalModel(object):
 
         return True
 
-    def loadfromhdf5(self, hdf5):
+    def loadfromhdf5(self, target):
         """
         Loads model from hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.load()).
 
         hdf5 can either be the filename or an hdf5 group.
         """
-        if isinstance(hdf5, str):
-            hdf5 = h5py.File(hdf5, "r")
+        if isinstance(target, str):
+            hdf5 = h5py.File(target, "r")
 
         for idx, h5osc in hdf5.items():
             osc = getattr(Oscillators, h5osc.attrs['type'])()
