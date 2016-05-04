@@ -97,19 +97,13 @@ class OpticalModel(object):
             print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
     def add(self, oscillator):
-        """Add one or more oscillators to the model.
+        """Add one or more oscillators (iterable) to the model.
 
         Parameters:
-        oscillator: an oscillator object
+        oscillator: an oscillator object or iterable
         """
 
-        self.oscillators.append(oscillator)
-
-    def addCollection(self, oscillators):
-       """Adds oscillators in an collection (iterable)."""
-
-       for osc in oscillators:
-           self.add(osc)
+        self.oscillators.extend(oscillator)
 
     def delete(self, index):
         """Removes an oscillator give by its index."""
