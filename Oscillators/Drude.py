@@ -42,7 +42,6 @@ class Drude: # Using the base oscillator as parent
 
         self.amplitude = amplitude
         self.width = width
-        self.position = 0
 
         self.representation = "standard"
 
@@ -51,33 +50,33 @@ class Drude: # Using the base oscillator as parent
 
     def __str__(self):
         return 'Drude lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
-        
+
     @property
     def amplitude(self):
         return self._amplitude
-        
+
     @amplitude.setter
-    def amplitude(self, a):
-        self._amplitude = abs(a)
-        
+    def amplitude(self, value):
+        self._amplitude = abs(value)
+
     @property
     def width(self):
         return self._width
-        
+
     @width.setter
-    def width(self, w):
-        self._width = abs(w)
-    
+    def width(self, value):
+        self._width = abs(value)
+
     @property
     def params(self):
         return [self.amplitude, self.width]
-       
-    @params.setter 
-    def params(self, p):
-        self.amplitude = p[0]
-        self.width = p[1]
-    
-    @property    
+
+    @params.setter
+    def params(self, values):
+        self.amplitude = values[0]
+        self.width = values[1]
+
+    @property
     def spectralWeight(self):
         """Returns the calculated spectral weight of the oscillator."""
 
@@ -113,7 +112,7 @@ class Drude_genosc(Drude):
 
         As defined in WVase genosc.
     """
-    
+
     _nparams = 2
 
     def __init__(self, amplitude=0., width=0.):
@@ -151,12 +150,12 @@ class Drude_genosc(Drude):
     def _translate_to_std(self):
         self.width = self._width
         self.amplitude = self._amplitude*self._width
-        
+
     @property
     def params(self):
         return [self.amplitude, self.width]
-       
-    @params.setter 
+
+    @params.setter
     def params(self, p):
         self.amplitude = p[0]
         self.width = p[1]
