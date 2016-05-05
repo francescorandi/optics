@@ -2,16 +2,11 @@
 """
 Gaussian family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator, _paramValidator
+from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
 
 import numpy as np
-from math import log, pow, sqrt
-
 import scipy.special
-import scipy.constants as constants
-from scipy.constants import physical_constants
-
-_hbar = physical_constants['natural unit of action in eV s'][0]
+from math import log, pow, sqrt
 
 class Gauss(BaseOscillator):
     """Gausian lineshape of the form

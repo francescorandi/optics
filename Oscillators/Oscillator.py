@@ -4,7 +4,12 @@ Basic attributes and methods shared by all oscillators.
 """
 import abc
 
-def _paramValidator(obj, types, value, default):
+import scipy.constants as constants
+from scipy.constants import physical_constants
+
+hbar = physical_constants['natural unit of action in eV s'][0]
+
+def paramValidator(obj, types, value, default):
     """Checks if the input provided for the attribute is valid."""
 
     try:
