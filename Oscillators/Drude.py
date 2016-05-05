@@ -3,7 +3,7 @@
 Drude family of oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator
+from Oscillators.Oscillator import BaseOscillator, _paramValidator
 
 import numpy as np
 
@@ -11,23 +11,6 @@ import scipy.constants as constants
 from scipy.constants import physical_constants
 
 _hbar = physical_constants['natural unit of action in eV s'][0]
-
-def validation(obj, types, value, default):
-    """Checks if the input provided for the attribute is valid."""
-
-    try:
-        if not isinstance(value, types):
-            obj._val = 0.
-            raise TypeError
-        if value < 0:
-            obj._val = 0.
-            raise ValueError
-        else:
-            obj._val = float(value)
-    except ValueError:
-        print("Should be a positive number. Value set at ", default)
-    except TypeError:
-        print("Should be a number type. Value set at ", default)
 
 class Drude(BaseOscillator): # Using the base oscillator as parent
     """Drude lineshape of the form
@@ -73,7 +56,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @amplitude.setter
     def amplitude(self, value):
-        validation(self, (int, float), value, 0.0)
+        _paramValidator(self, (int, float), value, 0.0)
 
     @property
     def width(self):
@@ -81,7 +64,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @width.setter
     def width(self, value):
-        validation(self, (int, float), value, 0.0)
+        _paramValidator(self, (int, float), value, 0.0)
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.

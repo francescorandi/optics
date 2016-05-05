@@ -4,6 +4,23 @@ Basic attributes and methods shared by all oscillators.
 """
 import abc
 
+def _paramValidator(obj, types, value, default):
+    """Checks if the input provided for the attribute is valid."""
+
+    try:
+        if not isinstance(value, types):
+            obj._val = default
+            raise TypeError
+        if value < 0:
+            obj._val = default
+            raise ValueError
+        else:
+            obj._val = float(value)
+    except ValueError:
+        print("Should be a positive number. Value set at ", default)
+    except TypeError:
+        print("Should be a number type. Value set at ", default)
+
 class BaseOscillator(metaclass=abc.ABCMeta):
     """Base class for all oscillator implementations."""
 
