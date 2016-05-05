@@ -26,6 +26,8 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     """
 
+    representation = "standard"
+
     def __init__(self, amplitude, width):
         """Defines a Drude lineshape.
 
@@ -41,8 +43,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
         self.amplitude = amplitude
         self.width = width
         self.position = 0
-
-        self.representation = "standard"
 
     def __repr__(self):
         return "Drude(amplitude = %d, width = %d)" % (self.amplitude, self.width)

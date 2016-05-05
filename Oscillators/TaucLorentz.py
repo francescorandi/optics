@@ -26,6 +26,8 @@ class Tauc:
 
     """
 
+    representation = "standard"
+
     def __init__(self, amplitude, width, position, gap):
         """Defines a Tauc-Lorentz lineshape as described in
         FIND REFERENCE
@@ -39,11 +41,6 @@ class Tauc:
         gap: energy gap
         """
 
-        assert amplitude >= 0
-        assert width >= 0
-        assert position >= 0
-        assert gap >= 0
-
         super().__init__()
 
         self.amplitude = amplitude
@@ -51,13 +48,43 @@ class Tauc:
         self.position = position
         self.gap = gap
 
-        self.representation = "standard"
-
     def __repr__(self):
         pass
 
     def __str__(self):
         return 'Tauc-Lorentz lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
+
+    @property
+    def amplitude(self):
+        return self._amplitude
+
+    @amplitude.setter
+    def amplitude(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
+
+    @property
+    def position(self):
+        return self.position
+
+    @width.setter
+    def position(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
+
+    @property
+    def gap(self):
+        return self.gap
+
+    @width.setter
+    def gap(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.

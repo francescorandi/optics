@@ -2,7 +2,7 @@
 """
 Gaussian family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator
+from Oscillators.Oscillator import BaseOscillator, _paramValidator
 
 import numpy as np
 from math import log, pow, sqrt
@@ -27,6 +27,8 @@ class Gauss(BaseOscillator):
 
     """
 
+    representation = "standard"
+
     def __init__(self, amplitude, width, position):
         """Defines a Gaussian lineshape as described in
         D. De Sousa Meneses, J. Non-Cryst. Solids 351 no.2 (2006) 769-776
@@ -39,23 +41,41 @@ class Gauss(BaseOscillator):
         position: center position of the oscillator (eV)
         """
 
-        assert amplitude >= 0
-        assert width >= 0
-        assert position >= 0
-
         super().__init__()
 
         self.amplitude = amplitude
         self.width = width
         self.position = position
 
-        self.representation = "standard"
-
     def __repr__(self):
         pass
 
     def __str__(self):
         return 'Gaussian lineshape with intensity {:.5f}, width {:.5f}, and position {:.5f}'.format(self.amplitude, self.width, self.position)
+
+    @property
+    def amplitude(self):
+        return self._amplitude
+
+    @amplitude.setter
+    def amplitude(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
+
+    @property
+    def position(self):
+        return self.position
+
+    @width.setter
+    def position(self, value):
+        _paramValidator(self, (int, float), value, 0.0)
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
