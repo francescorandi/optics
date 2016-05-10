@@ -22,6 +22,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
     """
 
     representation = "standard"
+    position = 0 # Neede to allow sorting.
 
     def __init__(self, amplitude, width):
         """Defines a Drude lineshape.
@@ -37,7 +38,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
         self.amplitude = amplitude
         self.width = width
-        self.position = 0
 
     def __repr__(self):
         return "Drude(amplitude = %d, width = %d)" % (self.amplitude, self.width)
@@ -51,7 +51,8 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @amplitude.setter
     def amplitude(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._amplitude = 0.0
+        self._amplitude = paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -59,7 +60,8 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @width.setter
     def width(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._width = 0.0
+        self._width = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
