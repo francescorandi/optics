@@ -52,7 +52,8 @@ class Lorentz(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._amplitude = 0.0
+        self._amplitude = paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -60,7 +61,8 @@ class Lorentz(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._width = 0.0
+        self._width = paramValidator(value, (int, float))
 
     @property
     def position(self):
@@ -68,7 +70,8 @@ class Lorentz(BaseOscillator):
 
     @width.setter
     def position(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+            self._position = 0.0
+            self._position = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.

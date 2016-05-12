@@ -57,7 +57,8 @@ class Tauc(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._amplitude = 0.0
+        self._amplitude = paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -65,7 +66,8 @@ class Tauc(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._width = 0.0
+        self._width = paramValidator(value, (int, float))
 
     @property
     def position(self):
@@ -73,15 +75,17 @@ class Tauc(BaseOscillator):
 
     @width.setter
     def position(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self._position = 0.0
+        self._position = paramValidator(value, (int, float))
 
     @property
     def gap(self):
         return self.gap
 
-    @width.setter
+    @gap.setter
     def gap(self, value):
-        _paramValidator(self, (int, float), value, 0.0)
+        self.gap = 0.0
+        self.gap = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -91,8 +95,7 @@ class Tauc(BaseOscillator):
 
         energy: Specified (range) of values to return.
         """
-
-        pass
+        raise NotImplementedError
 
     def spectralWeight(self):
         """Returns the spectral weight of the oscillator."""
