@@ -137,6 +137,25 @@ class OpticalModel(collections.MutableSequence):
 
         return _eps
 
+    def spectralWeight(self, limits = None):
+        """Calculates the spectral weight of the model. If an energy
+         window is give, a partial spectral weight is returned.
+
+         Parameter:
+         limits -- A touple indicating begining and end where to calculate
+                   the partial spectral weight of the model.
+
+         Returns:
+            The calculated dielectric function.
+         """
+        if not limits:
+            for oscillator in self.oscillators:
+                _sw += oscillator.spectralWeight()
+            return _sw
+        else:
+            raise NotImplementedError
+            #implement numerical integration of the dielectricFunction of the model.
+
     def refractive_index(self, window):
         """Calculates the complex refractive index of the model.
 
@@ -160,7 +179,6 @@ class OpticalModel(collections.MutableSequence):
         """
         __n = self.refractive_index(window)
         return np.abs((__n-1)/(__n+1))**2
-
 
     def plot(self, window):
         """Plots the dielectric function of the model."""
