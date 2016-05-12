@@ -3,22 +3,17 @@
 Basic attributes and methods shared by all oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator
+from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
 
 import numpy as np
-
-import scipy.constants as constants
-from scipy.constants import physical_constants
-
-_hbar = physical_constants['natural unit of action in eV s'][0]
 
 class oscillator(BaseOscillator):
     """Base class for all kinds of oscillators."""
 
-    def __init__(self):
+    # String giving a name to the representation to the class
+    representation = None
 
-        # String giving a name to the representation
-        self.representation = None
+    def __init__(self):
 
         # Attribute for quick lookup for calculated dielectric function values
         self.dfunc = None
