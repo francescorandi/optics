@@ -40,7 +40,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
         self.width = width
 
     def __repr__(self):
-        return "Drude(amplitude = %d, width = %d)" % (self.amplitude, self.width)
+        return "Drude(amplitude = %f, width = %f)" % (self.amplitude, self.width)
 
     def __str__(self):
         return 'Drude lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
@@ -51,7 +51,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = 0.0
         self._amplitude = paramValidator(value, (int, float))
 
     @property
@@ -60,7 +59,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @width.setter
     def width(self, value):
-        self._width = 0.0
         self._width = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):

@@ -9,19 +9,19 @@ from scipy.constants import physical_constants
 
 hbar = physical_constants['natural unit of action in eV s'][0]
 
-def paramValidator(value, types):
+def paramValidator(value, types, default = 0.0):
     """Checks if the input provided for the attribute is valid."""
     try:
         if not isinstance(value, types):
-            raise TypeError
-        if value < 0:
-            raise ValueError
+            print("Should be a number. Setting on default ", default)
+            return default
+        elif value < 0:
+            print("Should be a positive number. Setting on default ", default)
+            return default
         else:
-            return value
-    except ValueError:
-        print("Should be a positive number.")
-    except TypeError:
-        print("Should be a number.")
+            return float(value)
+    except:
+        print("Unexpected error in input!")
 
 class BaseOscillator(metaclass=abc.ABCMeta):
     """Base class for all oscillator implementations."""

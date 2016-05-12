@@ -54,7 +54,6 @@ class Gauss(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = 0.0
         self._amplitude = paramValidator(value, (int, float))
 
     @property
@@ -63,7 +62,6 @@ class Gauss(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        self._width = 0.0
         self._width = paramValidator(value, (int, float))
 
     @property
@@ -72,7 +70,6 @@ class Gauss(BaseOscillator):
 
     @position.setter
     def position(self, value):
-        self._position = 0.0
         self._position = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
