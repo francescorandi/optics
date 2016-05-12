@@ -6,16 +6,18 @@ import numpy as np
 om = OpticalModel('Two Oscillator Example')
 
 # Creating a Lorentz oscillator
-l = osc.Lorentz(1, 0.4, 2)
+l = osc.Lorentz(1, 0.3, 2)
 print(l)
 
 om.add(l) # Adding Lorentz to the model
 om.show()
 
 # Creating and adding a Gaussian
-g = osc.Gauss(1, 0.6, 6)
+g = osc.Gauss(1, 0.8, 5)
 print(g)
 om.add(g)
+
+# Printing a list of the oscillators in the model
 om.show()
 
 # Establishing the energy window of interest

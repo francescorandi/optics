@@ -71,21 +71,21 @@ class Tauc(BaseOscillator):
 
     @property
     def position(self):
-        return self.position
+        return self._position
 
-    @width.setter
+    @position.setter
     def position(self, value):
         self._position = 0.0
         self._position = paramValidator(value, (int, float))
 
     @property
     def gap(self):
-        return self.gap
+        return self._gap
 
     @gap.setter
     def gap(self, value):
-        self.gap = 0.0
-        self.gap = paramValidator(value, (int, float))
+        self._gap = 0.0
+        self._gap = paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.

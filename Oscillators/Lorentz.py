@@ -66,9 +66,9 @@ class Lorentz(BaseOscillator):
 
     @property
     def position(self):
-        return self.position
+        return self._position
 
-    @width.setter
+    @position.setter
     def position(self, value):
             self._position = 0.0
             self._position = paramValidator(value, (int, float))
