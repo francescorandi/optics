@@ -12,7 +12,7 @@ hbar = physical_constants['natural unit of action in eV s'][0]
 def paramValidator(value, types, default = 0.0):
     """Checks if the input provided for the attribute is valid."""
     try:
-        if not isinstance(value, types) or value < 0 or not str(value).isdigit():
+        if not isinstance(value, types) or value < 0:
             print("Should be a positive number. Setting on default ", default)
             return default
         else:

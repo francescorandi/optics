@@ -7,6 +7,7 @@ from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
 
 import math
 import numpy as np
+import scipy.constants as constants
 
 class Lorentz(BaseOscillator):
     """Lorentzian lineshape of the form
@@ -88,7 +89,7 @@ class Lorentz(BaseOscillator):
     def spectralWeight(self):
         """Returns the spectral weight of the oscillator."""
 
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
-        self.SW = _preFactor*self.amplitude*self.energy*self.width
+        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
+        self.SW = _preFactor*self.amplitude*self.position*self.width
 
         return self.SW

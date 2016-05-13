@@ -6,6 +6,7 @@ Drude family of oscillators.
 from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
 
 import numpy as np
+import scipy.constants as constants
 
 class Drude(BaseOscillator): # Using the base oscillator as parent
     """Drude lineshape of the form
@@ -78,7 +79,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
     def spectralWeight(self):
         """Returns the calculated spectral weight of the oscillator."""
 
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
         self.SW = _preFactor*self.amplitude
 
         return self.SW

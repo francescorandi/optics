@@ -123,7 +123,7 @@ class OpticalModel(collections.MutableSequence):
         self.clear()
         self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
-    def dielectric_function(self, window):
+    def dielectricFunction(self, window):
         """Calculates the complex dielectric function of the model.
 
         Parameter:
@@ -160,7 +160,7 @@ class OpticalModel(collections.MutableSequence):
 
         else:
             # Using Romberg: See http://young.physics.ucsc.edu/242/romberg.pdf
-            interval = limit[1]-limit[0]
+            interval = limits[1]-limits[0]
 
             # Finding minimal k for a smaller than 0.02 integration step
             k = ceil(log(interval/0.02-1)/log(2))
@@ -169,15 +169,13 @@ class OpticalModel(collections.MutableSequence):
             dx = interval/(2.0**k)
 
             # Create a 2**k+1 equally spaced sample
-            x = np.linspace(limit[0], limit[1], 2**k+1)
+            x = np.linspace(limits[0], limits[1], 2**k+1)
 
-            df = self.dielectricFunction(x)
-
-            _sw = romb(df, dx)
+            _sw = romb(np.imag(self.dielectricFunction(x)), dx)
 
         return _sw
 
-    def refractive_index(self, window):
+    def refractiveIndex(self, window):
         """Calculates the complex refractive index of the model.
 
         Parameter:
@@ -187,7 +185,7 @@ class OpticalModel(collections.MutableSequence):
                 The calculated complex refractive index.
         """
 
-        return np.sqrt(self.dielectric_function(window))
+        return np.sqrt(self.dielectricFunction(window))
 
     def reflectivity(self, window):
         """Calculates the reflectivity of the model.
@@ -198,7 +196,7 @@ class OpticalModel(collections.MutableSequence):
         Returns:
                 The calculated complex refractive index.
         """
-        __n = self.refractive_index(window)
+        __n = self.refractiveIndex(window)
         return np.abs((__n-1)/(__n+1))**2
 
     def plot(self, window):
@@ -207,11 +205,11 @@ class OpticalModel(collections.MutableSequence):
         # Split e1 and e2 in two different y-axis!
         #from http://matplotlib.org/examples/api/two_scales.html
         fig, ax1 = pyplot.subplots()
-        ax1.plot(window, np.real(self.dielectric_function(window)), 'g-')
+        ax1.plot(window, np.real(self.dielectricFunction(window)), 'g-')
         ax1.set_ylabel(r'$\varepsilon_1$', color = 'g', fontsize = 22)
         ax1.set_xlabel('Energy (eV)')
         ax2 = ax1.twinx()
-        ax2.plot(window, np.imag(self.dielectric_function(window)), 'r-')
+        ax2.plot(window, np.imag(self.dielectricFunction(window)), 'r-')
         ax2.set_ylabel(r'$\varepsilon_2$', color = 'r', fontsize = 22)
         pyplot.title(self.name)
         #pyplot.legend(loc=0)

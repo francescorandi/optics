@@ -23,5 +23,12 @@ om.show()
 # Establishing the energy window of interest
 energies = np.arange(0.01,8,0.005)
 
+# Spectral weight
+
+print("Gauss SW: ", g.spectralWeight())
+print("Lorentz SW: ", l.spectralWeight())
+
+print("Model SW: ", om.spectralWeight())
+print("Partial SW (0 -- 4): ", om.spectralWeight([0,4]))
 # Plotting the dielectric function
 om.plot(energies)
