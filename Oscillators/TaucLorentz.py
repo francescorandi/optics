@@ -5,6 +5,7 @@ Tauc-Lorentz family of oscillators.
 from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
 
 import numpy as np
+import scipy.constants as constants
 #from math import log, pow, sqrt
 
 #import scipy.special
