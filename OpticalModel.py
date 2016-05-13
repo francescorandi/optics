@@ -4,6 +4,9 @@ import matplotlib.pyplot as pyplot
 
 import json
 
+from math import ceil, log
+from scipy.integrate import romb
+
 class OpticalModel(collections.MutableSequence):
     """Class to store and handle the oscillator model of the dielectric
     function.
@@ -148,13 +151,31 @@ class OpticalModel(collections.MutableSequence):
          Returns:
             The calculated dielectric function.
          """
+
+        _sw = 0.0
+
         if not limits:
             for oscillator in self.oscillators:
                 _sw += oscillator.spectralWeight()
-            return _sw
+
         else:
-            raise NotImplementedError
-            #implement numerical integration of the dielectricFunction of the model.
+            # Using Romberg: See http://young.physics.ucsc.edu/242/romberg.pdf
+            interval = limit[1]-limit[0]
+
+            # Finding minimal k for a smaller than 0.02 integration step
+            k = ceil(log(interval/0.02-1)/log(2))
+
+            # Determining final step size
+            dx = interval/(2.0**k)
+
+            # Create a 2**k+1 equally spaced sample
+            x = np.linspace(limit[0], limit[1], 2**k+1)
+
+            df = self.dielectricFunction(x)
+
+            _sw = romb(df, dx)
+
+        return _sw
 
     def refractive_index(self, window):
         """Calculates the complex refractive index of the model.

@@ -106,5 +106,19 @@ class OpticalModelContainerTest(unittest.TestCase):
     def testContains(self):
         self.assertTrue(self.osc1 in self.om)
 
+class OpticalModelPropertiesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.om = OpticalModel.OpticalModel()
+        self.osc1 = Oscillators.Gauss(2,2,2)
+        self.om.add(self.osc1)
+
+    def testTotalSpectralWeigth(self):
+        raise NotImplementedError
+
+    def testPartialSpectralWeight(self):
+        raise NotImplementedError
+
+
 if __name__ == '__main__':
         unittest.main()
