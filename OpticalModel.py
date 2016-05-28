@@ -118,19 +118,45 @@ class OpticalModel(object):
 
         self.oscillators = []
 
-    def save(self, filename):
-        """Saves the model."""
+    def dump(self, filename):
+        """Exports the model as a json file."""
 
         try:
             f = open(filename, 'w')
         except IOError:
             print("A file cannot be opened. Model not saved")
         else:
-            json.dump(self.oscillators, f)
+            _dump = {}
+            _dump['type'] = 'model'
+            # Preparing metadata
+            _dump['name'] = self.name
+            _dump['desc'] = self.desc
+
+            #Preparing oscillators
+            _dump['oscillators'] = []
+            for osc in self.oscillators:
+                dump['oscillators'].append(repr(osc))
+
+            json.dump(_dump, f)
             f.close()
             print("Model is saved as: ", filename)
 
-    def savetohdf5(self, target):
+    def load(self, filename):
+        """Imports a model from a json file."""
+
+        raise NotImplemented
+
+        with open(filename, 'r') as f:
+            _data = json.load(f)
+            if 'type' in _data.keys() and _data['type'] is 'model'
+                self.name = _data['name']
+                self.desc = _data['desc']
+
+                for osc in _data['oscillators']:
+                    # Uses the representation of an oscillator to recreate it
+                    self.add(eval(osc))
+
+    def save(self, target):
         """
         Saves model to hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.save()).
@@ -149,7 +175,7 @@ class OpticalModel(object):
 
         return True
 
-    def loadfromhdf5(self, target):
+    def load(self, target):
         """
         Loads model from hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.load()).
