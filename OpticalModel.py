@@ -137,7 +137,7 @@ class OpticalModel(object):
             for osc in self.oscillators:
                 dump['oscillators'].append(repr(osc))
 
-            json.dump(_dump, f)
+            json.dump(_dump, f, sort_keys=True, indent=2)
             f.close()
             print("Model is saved as: ", filename)
 
