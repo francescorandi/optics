@@ -2,7 +2,7 @@
 """
 Gaussian family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import numpy as np
 import scipy.special
@@ -37,8 +37,6 @@ class Gauss(BaseOscillator):
         position: center position of the oscillator (eV)
         """
 
-        super().__init__()
-
         self.amplitude = amplitude
         self.width = width
         self.position = position
@@ -55,7 +53,7 @@ class Gauss(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = paramValidator(value, (int, float))
+        self._amplitude = _paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -63,7 +61,7 @@ class Gauss(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        self._width = paramValidator(value, (int, float))
+        self._width = _paramValidator(value, (int, float))
 
     @property
     def position(self):
@@ -71,7 +69,7 @@ class Gauss(BaseOscillator):
 
     @position.setter
     def position(self, value):
-        self._position = paramValidator(value, (int, float))
+        self._position = _paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -135,13 +133,11 @@ class Gauss_genosc(Gauss):
         width: width of the lineshape (eV)
         """
 
-        assert amplitude >= 0
-        assert energy >= 0
-        assert width >= 0
-
         self.amplitude = amplitude
         self.energy = energy
         self.width = width
+
+        super().__init__()
 
     def __repr__(self):
         return 'Gaussian lineshape' #print also the parameters!

@@ -2,7 +2,7 @@
 """
 Tauc-Lorentz family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import numpy as np
 import scipy.constants as constants
@@ -39,8 +39,6 @@ class Tauc(BaseOscillator):
         gap: energy gap
         """
 
-        super().__init__()
-
         self.amplitude = amplitude
         self.width = width
         self.position = position
@@ -58,7 +56,7 @@ class Tauc(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = paramValidator(value, (int, float))
+        self._amplitude = _paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -66,7 +64,7 @@ class Tauc(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        self._width = paramValidator(value, (int, float))
+        self._width = _paramValidator(value, (int, float))
 
     @property
     def position(self):
@@ -74,7 +72,7 @@ class Tauc(BaseOscillator):
 
     @position.setter
     def position(self, value):
-        self._position = paramValidator(value, (int, float))
+        self._position = _paramValidator(value, (int, float))
 
     @property
     def gap(self):
@@ -82,7 +80,7 @@ class Tauc(BaseOscillator):
 
     @gap.setter
     def gap(self, value):
-        self._gap = paramValidator(value, (int, float))
+        self._gap = _paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -128,10 +126,7 @@ class Tauc_genosc(Tauc):
         gap: energy gap (eV)
         """
 
-        assert amplitude >= 0
-        assert energy >= 0
-        assert width >= 0
-        assert gap >= 0
+        super().__init__()
 
         self.amplitude = amplitude
         self.energy = energy

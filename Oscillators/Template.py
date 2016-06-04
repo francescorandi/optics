@@ -3,7 +3,7 @@
 Basic attributes and methods shared by all oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import numpy as np
 
@@ -33,20 +33,12 @@ class oscillator(BaseOscillator):
         pass
 
     def opticalConductivity(self, window):
-        """Returns the optical conductivity of the oscillator.
+        """Returns the optical conductivity of the oscillator."""
 
-        \sigma(E) = \epsilon_2(E)*\epsilon_0*E/\hbar^2
-        """
-
-        # Fix units!
-        _hbar = physical_constants['natural unit of action in eV s'][0]
-        _preFactor = constants.epsilon_0/_hbar
-
-        return _preFactor*np.imag(self.dielectricFunction(window))*window
+        pass
 
     def spectralWeight(self, window):
-        """Calculates the area of the oscillator given its
-           parameters."""
+        """Calculates the area of the oscillator given its parameters."""
         pass
 
     def plasmaFrequency(self):

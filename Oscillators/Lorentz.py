@@ -3,7 +3,7 @@
 Lorentz family of oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import math
 import numpy as np
@@ -35,8 +35,6 @@ class Lorentz(BaseOscillator):
         position: center position of the lineshape (eV)
         """
 
-        super().__init__()
-
         self.amplitude = amplitude
         self.width = width
         self.position = position
@@ -53,7 +51,7 @@ class Lorentz(BaseOscillator):
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = paramValidator(value, (int, float))
+        self._amplitude = _paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -61,7 +59,7 @@ class Lorentz(BaseOscillator):
 
     @width.setter
     def width(self, value):
-        self._width = paramValidator(value, (int, float))
+        self._width = _paramValidator(value, (int, float))
 
     @property
     def position(self):
@@ -69,7 +67,7 @@ class Lorentz(BaseOscillator):
 
     @position.setter
     def position(self, value):
-            self._position = paramValidator(value, (int, float))
+            self._position = _paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.

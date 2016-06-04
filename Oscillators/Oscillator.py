@@ -9,7 +9,7 @@ from scipy.constants import physical_constants
 
 hbar = physical_constants['natural unit of action in eV s'][0]
 
-def paramValidator(value, types, default = 0.0):
+def _paramValidator(value, types, default = 0.0):
     """Checks if the input provided for the attribute is valid."""
     try:
         if not isinstance(value, types) or value < 0:
@@ -22,6 +22,14 @@ def paramValidator(value, types, default = 0.0):
 
 class BaseOscillator(metaclass=abc.ABCMeta):
     """Base class for all oscillator implementations."""
+
+    @abc.abstractmethod
+    def __str__(self):
+        pass
+
+    @abc.abstractmethod
+    def __repr__(self):
+        pass
 
     @abc.abstractmethod
     def dielectricFunction(self, energy):

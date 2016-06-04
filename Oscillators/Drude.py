@@ -3,7 +3,7 @@
 Drude family of oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import numpy as np
 import scipy.constants as constants
@@ -23,7 +23,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
     """
 
     representation = "standard"
-    position = 0 # Neede to allow sorting.
+    position = 0 # Needed to allow sorting.
 
     def __init__(self, amplitude, width):
         """Defines a Drude lineshape.
@@ -52,7 +52,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @amplitude.setter
     def amplitude(self, value):
-        self._amplitude = paramValidator(value, (int, float))
+        self._amplitude = _paramValidator(value, (int, float))
 
     @property
     def width(self):
@@ -60,7 +60,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     @width.setter
     def width(self, value):
-        self._width = paramValidator(value, (int, float))
+        self._width = _paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -107,9 +107,6 @@ class Drude_genosc(Drude):
         amplitude: Amplitude (eV)
         width: width of the lineshape (eV)
         """
-
-        assert amplitude >= 0
-        assert width >= 0
 
         # Genosc representation
         self._amplitude = amplitude
