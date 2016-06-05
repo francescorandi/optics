@@ -1,10 +1,10 @@
 from Oscillators import Drude
 import unittest
 
-class DrudeParameterValidationTest(unittest.TestCase):
+class ParameterValidationTest(unittest.TestCase):
 
-    def testConstruction(self):
-        self.drude = Drude(1,1)
+    def testConstructionCorrect(self):
+        self.drude = Drude(1.0,1.0)
         self.assertEqual(self.drude.amplitude, 1.0)
         self.assertEqual(self.drude.width, 1.0)
 

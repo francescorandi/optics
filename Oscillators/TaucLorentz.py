@@ -26,7 +26,12 @@ class Tauc(BaseOscillator):
 
     representation = "standard"
 
-    def __init__(self, amplitude, width, position, gap):
+    amplitude = _parameter('amplitude', float, 0.0)
+    width = _parameter('width', float, 0.0)
+    position = _parameter('position', float, 0.0)
+    gap = _parameter('gap', float, 0.0)
+
+    def __init__(self, amplitude=0.0, width=0.0, position=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
         FIND REFERENCE
 
@@ -49,38 +54,6 @@ class Tauc(BaseOscillator):
 
     def __str__(self):
         return 'Tauc-Lorentz lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
-
-    @property
-    def amplitude(self):
-        return self._amplitude
-
-    @amplitude.setter
-    def amplitude(self, value):
-        self._amplitude = _paramValidator(value, (int, float))
-
-    @property
-    def width(self):
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        self._width = _paramValidator(value, (int, float))
-
-    @property
-    def position(self):
-        return self._position
-
-    @position.setter
-    def position(self, value):
-        self._position = _paramValidator(value, (int, float))
-
-    @property
-    def gap(self):
-        return self._gap
-
-    @gap.setter
-    def gap(self, value):
-        self._gap = _paramValidator(value, (int, float))
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
