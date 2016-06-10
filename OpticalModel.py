@@ -1,8 +1,7 @@
 import collections
 import numpy as np
 import matplotlib.pyplot as pyplot
-from . import Oscillators as Oscillators
-
+import Oscillators
 import json
 
 from math import ceil, log
@@ -25,17 +24,18 @@ class OpticalModel(collections.MutableSequence):
             constructing the optical model."""
 
         type(self).__counter += 1
-        if name:
-            self.name = name
-        else:
-            self.name = "Optical Model %d" % self.__counter
 
-        self.desc = desc
+        if name:
+            self._name = name
+        else:
+            self._name = "Optical Model %d" % self.__counter
+
+        self._desc = desc
 
         if oscillators:
-            self.oscillators = oscillators
+            self.__oscillators = oscillators
         else:
-            self.oscillators = []
+            self.__oscillators = []
 
     def __del__(self):
         type(self).__counter -= 1
@@ -44,68 +44,94 @@ class OpticalModel(collections.MutableSequence):
     def OpticalModelInstances():
         return OpticalModel.__counter
 
+    @staticmethod
+    def __checkValue(value):
+        if not isinstance(value, Oscillators.BaseOscillator):
+           raise TypeError("Only oscillators can be added.")
+
     def __str__(self):
         return str(self.name)
 
+    # Following 5 methods to implement the MutableSequence
+
     def __len__(self):
-        return len(self.oscillators)
+        return len(self.__oscillators)
 
     def __getitem__(self, index):
-        return self.oscillators[index]
+        return self.__oscillators[index]
 
-    def __delitem__(self, i):
-        del self.oscillators[i]
+    def __delitem__(self, index):
+        del self.__oscillators[index]
 
     def __setitem__(self, index, value):
-        # add check for oscillator subclass instance
-        self.oscillators[index] = value
-
-    def __add__(self, other):
-        return OpticalModel(oscillators = self.oscillators + other.oscillators)
+        self.__checkValue(value)
+        self.__oscillators[index] = value
 
     def insert(self, index, value):
-        # add check for oscillator subclass instance
-        self.oscillators.insert(index, value)
+        self.__checkValue(value)
+        self.__oscillators.insert(index, value)
+
+    def __add__(self, other):
+        return OpticalModel(oscillators = self.__oscillators + other.__oscillators)
+
+    @property
+    def name(self):
+        return self.name
+
+    @name.setter
+    def name(self, string):
+         self._name = string
+
+    @property
+    def desc(self):
+        return self.name
+
+    @desc.setter
+    def desc(self, string):
+         self._desc = string
 
     @property
     def params(self):
         P = []
-        for oscillator in self.oscillators:
+        for oscillator in self.__oscillators:
             P.extend(oscillator.params)
 
         return P
 
     @params.setter
     def params(self, P):
-        for oscillator in self.oscillators:
+        for oscillator in self.__oscillators:
             oscillator.params = P[0:oscillator._nparams]
             np.delete(P, slice(0,oscillator._nparams))
 
     def sort(self):
         """Sorts the oscillators of the model in ascending order by energy."""
-        self.oscillators.sort(key = lambda oscillator: oscillator.position)
+        self.__oscillators.sort(key = lambda oscillator: oscillator.position)
 
     def show(self):
         """Prints the collection of oscillators composing the model."""
         print("Composition of: %s"% self.name)
         print("Index\t Type\t Attributes")
         print("========================")
-        for index, oscillator in enumerate(self.oscillators):
+        for index, oscillator in enumerate(self.__oscillators):
             print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
     def add(self, oscillator):
-        """Add one or more oscillators (iterable) to the model.
+        """Add one or more oscillators (iterable) to the model. Wrapper around
+        append and extend methods.
 
         Parameters:
         oscillator: an oscillator object or iterable
         """
-
-        self.oscillators.extend(oscillator)
+        if oscillator is list:
+            self.__oscillators.extend(oscillator)
+        else:
+            self.__oscillators.append(oscillator)
 
     def clear(self):
         """Removes all oscillators from the model."""
 
-        self.oscillators = []
+        self.__oscillators = []
 
     def dump(self, filename):
         """Exports the model as a json file."""
@@ -123,7 +149,7 @@ class OpticalModel(collections.MutableSequence):
 
             #Preparing oscillators
             _dump['oscillators'] = []
-            for osc in self.oscillators:
+            for osc in self.__oscillators:
                 dump['oscillators'].append(repr(osc))
 
             json.dump(_dump, f, sort_keys=True, indent=2)
@@ -137,7 +163,7 @@ class OpticalModel(collections.MutableSequence):
 
         with open(filename, 'r') as f:
             _data = json.load(f)
-            if 'type' in _data.keys() and _data['type'] is 'model'
+            if 'type' in _data.keys() and _data['type'] is 'model':
                 self.name = _data['name']
                 self.desc = _data['desc']
 
@@ -157,7 +183,7 @@ class OpticalModel(collections.MutableSequence):
         if isinstance(target, str):
             hdf5 = h5py.File(target, "w")
 
-        for index, oscillator in enumerate(self.oscillators):
+        for index, oscillator in enumerate(self.__oscillators):
                 h5osc = hdf5.create_group(str(index))
                 h5osc.attrs['type'] = oscillator.__class__.__name__
                 h5osc.create_dataset("params", data=oscillator.params)
@@ -186,9 +212,9 @@ class OpticalModel(collections.MutableSequence):
         If a particular index is give, it returns only that oscillator."""
 
         if index:
-            return self.oscillators[index]
+            return self.__oscillators[index]
         else:
-            return self.oscillators
+            return self.__oscillators
 
     def build_from_parameters(self, Parameter, Type, Constraint):
         self.clear()
@@ -208,7 +234,7 @@ class OpticalModel(collections.MutableSequence):
         #_eps = np.zeros(len(window), dtype = np.cfloat)
         _eps = np.ones(len(window), dtype = np.cfloat)
 
-        for oscillator in self.oscillators:
+        for oscillator in self.__oscillators:
             _eps += oscillator.dielectricFunction(window)
 
         return _eps
@@ -228,7 +254,7 @@ class OpticalModel(collections.MutableSequence):
         _sw = 0.0
 
         if not limits:
-            for oscillator in self.oscillators:
+            for oscillator in self.__oscillators:
                 _sw += oscillator.spectralWeight()
 
         else:
