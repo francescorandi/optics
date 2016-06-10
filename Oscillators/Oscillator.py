@@ -3,13 +3,14 @@
 Basic attributes and methods shared by all oscillators.
 """
 import abc
+from numbers import Number
 
 import scipy.constants as constants
 from scipy.constants import physical_constants
 
 hbar = physical_constants['natural unit of action in eV s'][0]
 
-def _parameter(name, types, default = 0.0):
+def _parameter(name, default = 0.0):
     """Checks if the input provided for the attribute is valid."""
 
     storage_name = '_' + name
@@ -21,13 +22,17 @@ def _parameter(name, types, default = 0.0):
     @attribute.setter
     def attribute(self, value):
         try:
-            if not isinstance(value, types):
+            # If it's a number
+            if not isinstance(value, Number):
+                if not value.isdigit():
+                    raise TypeError
+            if isinstance(value, complex):
                 raise TypeError
-            if value < 0.0:
+            if value < 0.0: # no value should be below 0?
                 raise ValueError
-            setattr(self, storage_name, value)
+            setattr(self, storage_name, float(value)) # casting to float
         except:
-            print("Parameter '{}' should be a positive number. Value set at {}".format(name, default))
+            print("The parameter '{}' should be a positive number. Value set at {}".format(name, default))
             setattr(self, storage_name, default)
 
     return attribute

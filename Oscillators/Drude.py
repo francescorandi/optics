@@ -24,8 +24,8 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', float, 0.0)
-    width = _parameter('width', float, 0.0)
+    amplitude = _parameter('amplitude', 0.0)
+    width = _parameter('width', 0.0)
     position = 0 # Needed to allow sorting.
 
     def __init__(self, amplitude=0.0, width=0.0):

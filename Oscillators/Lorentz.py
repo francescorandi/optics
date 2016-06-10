@@ -24,9 +24,9 @@ class Lorentz(BaseOscillator):
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', float, 0.0)
-    width = _parameter('width', float, 0.0)
-    position = _parameter('position', float, 0.0)
+    amplitude = _parameter('amplitude', 0.0)
+    width = _parameter('width', 0.0)
+    position = _parameter('position', 0.0)
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Lorentz lineshape.
@@ -44,7 +44,7 @@ class Lorentz(BaseOscillator):
         self.position = position
 
     def __repr__(self):
-        pass
+        return "Lorentz(amplitude = %f, width = %f, position = %f)" % (self.amplitude, self.width, self.position)
 
     def __str__(self):
         return 'Lorentz lineshape with intensity {:.5f}, width {:.5f}, and position {:-5f}'.format(self.amplitude, self.width, self.position)

@@ -26,10 +26,10 @@ class Tauc(BaseOscillator):
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', float, 0.0)
-    width = _parameter('width', float, 0.0)
-    position = _parameter('position', float, 0.0)
-    gap = _parameter('gap', float, 0.0)
+    amplitude = _parameter('amplitude', 0.0)
+    width = _parameter('width', 0.0)
+    position = _parameter('position', 0.0)
+    gap = _parameter('gap', 0.0)
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
@@ -50,7 +50,7 @@ class Tauc(BaseOscillator):
         self.gap = gap
 
     def __repr__(self):
-        pass
+        return "Tauc(amplitude = %f, width = %f, position = %f, gap = %f)" % (self.amplitude, self.width, self.position, self.gap)
 
     def __str__(self):
         return 'Tauc-Lorentz lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
