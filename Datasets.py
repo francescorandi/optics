@@ -19,12 +19,21 @@ unitTransform = {'cm-1': physical_constants[__wavelength][0]/100,
 class Dataset():
     """Base class for datasets. Generic type."""
 
+    __counter = 0
+
     def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV", desc = None):
         """ Write some documentation. """
+
+        type(self).__counter += 1
 
         self.type = "Generic"
         self.unit = unit
         self._name = name
+
+        if name:
+            self._name = name
+        else:
+            self._name = "Optical Model %d" % self.__counter
 
         if inputFile:
             self.loadRaw(inputFile, unit)
@@ -34,6 +43,9 @@ class Dataset():
             self.y = array(y, dtype = float)
 
         self.description = desc
+
+    def __del__(self):
+        type(self).__counter -= 1
 
     # How to use decorators to define "setters" and "getters"
     # http://www.python-course.eu/python3_properties.php
@@ -47,6 +59,14 @@ class Dataset():
     @name.setter
     def name(self, name):
         self._name = name
+
+    @property
+    def desc(self):
+        return self.name
+
+    @desc.setter
+    def desc(self, string):
+         self._desc = string
 
     def __repr__(self):
         #Find a better representation
