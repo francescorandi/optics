@@ -207,15 +207,6 @@ class OpticalModel(collections.MutableSequence):
 
         return True
 
-    def get(self, index = None):
-        """Returns the list of oscillators composing the model.
-        If a particular index is give, it returns only that oscillator."""
-
-        if index:
-            return self.__oscillators[index]
-        else:
-            return self.__oscillators
-
     def build_from_parameters(self, Parameter, Type, Constraint):
         self.clear()
         self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
