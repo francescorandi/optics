@@ -2,7 +2,7 @@
 """
 Dataset class.
 """
-#import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as pyplot
 
 from numpy import array, loadtxt, savetxt, imag, real, dtype
 from scipy.constants import physical_constants
@@ -25,7 +25,7 @@ class Dataset(object):
         self.type = "Generic"
         self.unit = unit
         self._name = name
-        
+
         if inputFile:
             self.loadRaw(inputFile, unit)
 
@@ -90,7 +90,7 @@ class Dataset(object):
 
         if subset:
             __clone.subset(*subset)
-        
+
         if name:
             __clone.name = name
         else:
@@ -152,7 +152,7 @@ class Dataset(object):
             pyplot.xlabel("Energy [eV]")
         elif self.unit == "cm-1":
             pyplot.xlabel("Wavenumber [cm-1]")
-            
+
         if self.name:
             pyplot.legend(loc=0)
 
@@ -162,11 +162,11 @@ class ReflectivityDataset(Dataset):
     def __init__(self, inputFile = None, unit = "eV", name = None):
         super().__init__(inputFile = inputFile, unit = unit, name= name)
         self.type = "Reflectivity"
-    
+
     def plot(self):
         super().plot()
         pyplot.ylabel("Reflectivity")
-          
+
 
 
 class TransmissionDataset(Dataset):
