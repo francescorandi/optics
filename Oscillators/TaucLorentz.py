@@ -24,6 +24,8 @@ class Tauc(BaseOscillator):
 
     """
 
+    _nparams = 4
+
     representation = "standard"
 
     amplitude = _parameter('amplitude', 0.0)
@@ -70,6 +72,17 @@ class Tauc(BaseOscillator):
 
         pass
 
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position, self.gap]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+        self.gap = p[3]
+
 class Tauc_genosc(Tauc):
     """Tauc-Lorentz lineshapeof the form
 
@@ -86,7 +99,9 @@ class Tauc_genosc(Tauc):
         and \epsilon_1 is determined via Kronig-Kramers.
     """
 
-    def __init__(self, amplitude, energy, width, gap):
+    _nparams = 4
+
+    def __init__(self, amplitude=0.0, energy=0.0, width=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
         FIX! Reutilize better code from the parent class!
 
@@ -159,6 +174,17 @@ class Tauc_genosc(Tauc):
 
         else:
             pass
+
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position, self.gap]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+        self.gap = p[3]
 
     def __str__(self):
         return 'Tauc-Lorentz (VWase/genosc) lineshape with intensity {:.5f}, width {:.5f} and psition {:.5f}'.format(self.amplitude, self.width, self.position)

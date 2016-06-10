@@ -22,6 +22,7 @@ class Gauss(BaseOscillator):
 
 
     """
+    _nparams = 3
 
     representation = "standard"
 
@@ -51,6 +52,25 @@ class Gauss(BaseOscillator):
     def __str__(self):
         return 'Gaussian lineshape with intensity {:.5f}, width {:.5f}, and position {:.5f}'.format(self.amplitude, self.width, self.position)
 
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+
+    @property
+    def spectralWeight(self):
+        """Returns the spectral weight of the oscillator."""
+
+        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        self.SW = _preFactor*self.amplitude
+
+        return self.SW
+
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
 
@@ -77,14 +97,6 @@ class Gauss(BaseOscillator):
 
         return _real + 1.j*_imag
 
-    def spectralWeight(self):
-        """Returns the spectral weight of the oscillator."""
-
-        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
-        self.SW = _preFactor*self.amplitude
-
-        return self.SW
-
 class Gauss_genosc(Gauss):
     """Gaussian lineshapeof the form
 
@@ -101,7 +113,9 @@ class Gauss_genosc(Gauss):
         consistent.
     """
 
-    def __init__(self, amplitude, energy, width):
+    _nparams = 3
+
+    def __init__(self, amplitude=0.0, energy=0.0, width=0.0):
         """Defines a Gaussian lineshape as described in
         D. De Sousa Meneses, J. Non-Cryst. Solids 351 no.2 (2006) 769-776
 
@@ -121,6 +135,16 @@ class Gauss_genosc(Gauss):
 
     def __repr__(self):
         return 'Gaussian lineshape' #print also the parameters!
+
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = abs(p[0])
+        self.width = abs(p[1])
+        self.position = abs(p[2])
 
     def dielectricFunction(self, energy):
         """

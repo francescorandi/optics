@@ -16,7 +16,7 @@ unitTransform = {'cm-1': physical_constants[__wavelength][0]/100,
                  'THz': physical_constants[__herz][0]/10**12,
                  'eV': 1}
 
-class Dataset(object):
+class Dataset():
     """Base class for datasets. Generic type."""
 
     def __init__(self, x = None, y = None, name = None, inputFile = None, unit = "eV", desc = None):

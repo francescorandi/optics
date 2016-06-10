@@ -22,11 +22,14 @@ class Lorentz(BaseOscillator):
         $E_c$ energy center (eV).
     """
 
+
     representation = "standard"
 
     amplitude = _parameter('amplitude', 0.0)
     width = _parameter('width', 0.0)
     position = _parameter('position', 0.0)
+
+    _nparams = 3
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Lorentz lineshape.
@@ -49,6 +52,25 @@ class Lorentz(BaseOscillator):
     def __str__(self):
         return 'Lorentz lineshape with intensity {:.5f}, width {:.5f}, and position {:-5f}'.format(self.amplitude, self.width, self.position)
 
+    @property
+    def params(self):
+        return [self.amplitude, self.width, self.position]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
+        self.position = p[2]
+
+    @property
+    def spectralWeight(self):
+        """Returns the spectral weight of the oscillator."""
+
+        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        self.SW = _preFactor*self.amplitude*self.energy*self.width
+
+        return self.SW
+
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
 
@@ -63,11 +85,3 @@ class Lorentz(BaseOscillator):
         self.dfunc = self.amplitude * np.divide(self.width * self.position, _den)
 
         return self.dfunc
-
-    def spectralWeight(self):
-        """Returns the spectral weight of the oscillator."""
-
-        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
-        self.SW = _preFactor*self.amplitude*self.position*self.width
-
-        return self.SW

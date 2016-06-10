@@ -1,6 +1,7 @@
 import collections
 import numpy as np
 import matplotlib.pyplot as pyplot
+from . import Oscillators as Oscillators
 
 import json
 
@@ -44,7 +45,7 @@ class OpticalModel(collections.MutableSequence):
         return OpticalModel.__counter
 
     def __str__(self):
-        pass
+        return str(self.name)
 
     def __len__(self):
         return len(self.oscillators)
@@ -66,6 +67,20 @@ class OpticalModel(collections.MutableSequence):
         # add check for oscillator subclass instance
         self.oscillators.insert(index, value)
 
+    @property
+    def params(self):
+        P = []
+        for oscillator in self.oscillators:
+            P.extend(oscillator.params)
+
+        return P
+
+    @params.setter
+    def params(self, P):
+        for oscillator in self.oscillators:
+            oscillator.params = P[0:oscillator._nparams]
+            np.delete(P, slice(0,oscillator._nparams))
+
     def sort(self):
         """Sorts the oscillators of the model in ascending order by energy."""
         self.oscillators.sort(key = lambda oscillator: oscillator.position)
@@ -79,36 +94,92 @@ class OpticalModel(collections.MutableSequence):
             print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
     def add(self, oscillator):
-        """Add one or more oscillators to the model.
+        """Add one or more oscillators (iterable) to the model.
 
         Parameters:
-        oscillator: an oscillator object
+        oscillator: an oscillator object or iterable
         """
 
-        self.oscillators.append(oscillator)
-
-    def addCollection(self, oscillators):
-       """Adds oscillators in an collection (iterable)."""
-
-       for osc in oscillators:
-           self.add(osc)
+        self.oscillators.extend(oscillator)
 
     def clear(self):
         """Removes all oscillators from the model."""
 
         self.oscillators = []
 
-    def save(self, filename):
-        """Saves the model."""
+    def dump(self, filename):
+        """Exports the model as a json file."""
 
         try:
             f = open(filename, 'w')
         except IOError:
             print("A file cannot be opened. Model not saved")
         else:
-            json.dump(self.oscillators, f)
+            _dump = {}
+            _dump['type'] = 'model'
+            # Preparing metadata
+            _dump['name'] = self.name
+            _dump['desc'] = self.desc
+
+            #Preparing oscillators
+            _dump['oscillators'] = []
+            for osc in self.oscillators:
+                dump['oscillators'].append(repr(osc))
+
+            json.dump(_dump, f, sort_keys=True, indent=2)
             f.close()
             print("Model is saved as: ", filename)
+
+    def load(self, filename):
+        """Imports a model from a json file."""
+
+        raise NotImplemented
+
+        with open(filename, 'r') as f:
+            _data = json.load(f)
+            if 'type' in _data.keys() and _data['type'] is 'model'
+                self.name = _data['name']
+                self.desc = _data['desc']
+
+                for osc in _data['oscillators']:
+                    # Uses the representation of an oscillator to recreate it
+                    self.add(eval(osc))
+
+    def save(self, target):
+        """
+        Saves model to hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.save()).
+
+        hdf5 can either be the filename or an hdf5 group.
+        """
+
+        #Testing if target is a string, if true creates an hdf5 file.
+        if isinstance(target, str):
+            hdf5 = h5py.File(target, "w")
+
+        for index, oscillator in enumerate(self.oscillators):
+                h5osc = hdf5.create_group(str(index))
+                h5osc.attrs['type'] = oscillator.__class__.__name__
+                h5osc.create_dataset("params", data=oscillator.params)
+
+        return True
+
+    def load(self, target):
+        """
+        Loads model from hdf5 file. Can be used directly or called
+        from a higher level function (e.g. system.load()).
+
+        hdf5 can either be the filename or an hdf5 group.
+        """
+        if isinstance(target, str):
+            hdf5 = h5py.File(target, "r")
+
+        for idx, h5osc in hdf5.items():
+            osc = getattr(Oscillators, h5osc.attrs['type'])()
+            osc.params = h5osc['params'][:]
+            self.add(osc)
+
+        return True
 
     def get(self, index = None):
         """Returns the list of oscillators composing the model.
@@ -124,6 +195,7 @@ class OpticalModel(collections.MutableSequence):
         self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
     def dielectricFunction(self, window):
+
         """Calculates the complex dielectric function of the model.
 
         Parameter:
@@ -133,7 +205,8 @@ class OpticalModel(collections.MutableSequence):
                 The calculated dielectric function.
         """
 
-        _eps = np.zeros(len(window), dtype = complex)
+        #_eps = np.zeros(len(window), dtype = np.cfloat)
+        _eps = np.ones(len(window), dtype = np.cfloat)
 
         for oscillator in self.oscillators:
             _eps += oscillator.dielectricFunction(window)

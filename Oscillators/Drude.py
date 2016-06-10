@@ -21,6 +21,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
 
     """
+    _nparams = 2
 
     representation = "standard"
 
@@ -38,16 +39,33 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
         width: width of the lineshape (eV)
         """
 
-        #super().__init__()
-
         self.amplitude = amplitude
         self.width = width
+
 
     def __repr__(self):
         return "Drude(amplitude = %f, width = %f)" % (self.amplitude, self.width)
 
     def __str__(self):
         return 'Drude lineshape with intensity {:.5f} and width {:.5f}'.format(self.amplitude, self.width)
+
+    @property
+    def params(self):
+        return [self.amplitude, self.width]
+
+    @params.setter
+    def params(self, values):
+        self.amplitude = values[0]
+        self.width = values[1]
+
+    @property
+    def spectralWeight(self):
+        """Returns the calculated spectral weight of the oscillator."""
+
+        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        self.SW = _preFactor*self.amplitude
+
+        return self.SW
 
     def dielectricFunction(self, energy):
         """Returns the complex dielectric function at the specified energy.
@@ -63,14 +81,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
         return self.dfunc
 
-    def spectralWeight(self):
-        """Returns the calculated spectral weight of the oscillator."""
-
-        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
-        self.SW = _preFactor*self.amplitude
-
-        return self.SW
-
 class Drude_genosc(Drude):
     """Drude lineshape of the form
 
@@ -85,7 +95,9 @@ class Drude_genosc(Drude):
         As defined in WVase genosc.
     """
 
-    def __init__(self, amplitude, width):
+    _nparams = 2
+
+    def __init__(self, amplitude=0., width=0.):
         """Defines a Drude lineshape.
 
         input
@@ -117,3 +129,12 @@ class Drude_genosc(Drude):
     def _translate_to_std(self):
         self.width = self._width
         self.amplitude = self._amplitude*self._width
+
+    @property
+    def params(self):
+        return [self.amplitude, self.width]
+
+    @params.setter
+    def params(self, p):
+        self.amplitude = p[0]
+        self.width = p[1]
