@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as pyplot
 import Oscillators
 import json
+import h5py
 
 from math import ceil, log
 from scipy.integrate import romb
@@ -76,7 +77,7 @@ class OpticalModel(collections.MutableSequence):
 
     @property
     def name(self):
-        return self.name
+        return self._name
 
     @name.setter
     def name(self, string):
@@ -84,7 +85,7 @@ class OpticalModel(collections.MutableSequence):
 
     @property
     def desc(self):
-        return self.name
+        return self._desc
 
     @desc.setter
     def desc(self, string):
@@ -111,8 +112,9 @@ class OpticalModel(collections.MutableSequence):
     def show(self):
         """Prints the collection of oscillators composing the model."""
         print("Composition of: %s"% self.name)
+        print("Description: %s"% self.desc)
         print("Index\t Type\t Attributes")
-        print("========================")
+        print("==========================================")
         for index, oscillator in enumerate(self.__oscillators):
             print("\t".join([str(index), type(oscillator).__name__, str(oscillator)]))
 
@@ -123,10 +125,10 @@ class OpticalModel(collections.MutableSequence):
         Parameters:
         oscillator: an oscillator object or iterable
         """
-        if oscillator is list:
-            self.__oscillators.extend(oscillator)
+        if isinstance(oscillator, list):
+            self.extend(oscillator)
         else:
-            self.__oscillators.append(oscillator)
+            self.append(oscillator)
 
     def clear(self):
         """Removes all oscillators from the model."""
@@ -212,7 +214,6 @@ class OpticalModel(collections.MutableSequence):
         self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
     def dielectricFunction(self, window):
-
         """Calculates the complex dielectric function of the model.
 
         Parameter:
@@ -229,6 +230,17 @@ class OpticalModel(collections.MutableSequence):
             _eps += oscillator.dielectricFunction(window)
 
         return _eps
+
+    def opticalConductivity(self, window):
+        """Calculates the complex optical conductivity of the model.
+
+        Parameter:
+        window -- Set of points where to calculate the optical conductivity.
+
+        Returns:
+                The calculated optical conductivity.
+        """
+        raise NotImplemented
 
     def spectralWeight(self, limits = None):
         """Calculates the spectral weight of the model. If an energy
@@ -289,18 +301,43 @@ class OpticalModel(collections.MutableSequence):
         __n = self.refractiveIndex(window)
         return np.abs((__n-1)/(__n+1))**2
 
-    def plot(self, window):
-        """Plots the dielectric function of the model."""
+    def _singleAxisPlot(self, x, y, label):
+        pyplot.plot(x, y, 'r-')
+        pyplot.ylabel(label, color = 'r', fontsize = 22)
+        pyplot.xlabel('Energy (eV)', fontsize = 21)
+        pyplot.title(self.name, fontsize = 21)
 
+    def _doubleAxisPlot(self, x, y, labels):
         # Split e1 and e2 in two different y-axis!
-        #from http://matplotlib.org/examples/api/two_scales.html
+        # from http://matplotlib.org/examples/api/two_scales.html
         fig, ax1 = pyplot.subplots()
-        ax1.plot(window, np.real(self.dielectricFunction(window)), 'g-')
-        ax1.set_ylabel(r'$\varepsilon_1$', color = 'g', fontsize = 22)
-        ax1.set_xlabel('Energy (eV)')
+        ax1.plot(x, np.real(y), 'g-')
+        ax1.set_ylabel(labels[0], color = 'g', fontsize = 22)
+        ax1.set_xlabel('Energy (eV)', fontsize = 21)
         ax2 = ax1.twinx()
-        ax2.plot(window, np.imag(self.dielectricFunction(window)), 'r-')
-        ax2.set_ylabel(r'$\varepsilon_2$', color = 'r', fontsize = 22)
-        pyplot.title(self.name)
-        #pyplot.legend(loc=0)
-        pyplot.show()
+        ax2.plot(x, np.imag(y), 'r-')
+        ax2.set_ylabel(labels[1], color = 'r', fontsize = 22)
+        pyplot.title(self.name, fontsize = 21)
+
+    def plot(self, window, *, flag = None, **kwargs):
+        """Plots the dielectric function of the model.
+        Possible flags"""
+
+        if flag is "R":
+            self._singleAxisPlot(window, self.reflectivity(window), label = 'R')
+
+        elif flag is "e1":
+            self._singleAxisPlot(window, np.real(self.dielectricFunction(window)), r'$\varepsilon_1$')
+
+        elif flag is "e2":
+            self._singleAxisPlot(window, np.imag(self.dielectricFunction(window)), r'$\varepsilon_2$')
+
+        elif flag is "s1":
+            raise NotImplemented
+            self._singleAxisPlot(window, np.real(self.opticalConductivity(window)), r'$\sigma_1$')
+
+        elif flag is "nk":
+            self._doubleAxisPlot(window, self.refractiveIndex(window), labels = ['n', 'k'])
+
+        else:
+            self._doubleAxisPlot(window, self.dielectricFunction(window), labels = [r'$\varepsilon_1$', r'$\varepsilon_2$'])
