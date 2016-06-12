@@ -8,6 +8,17 @@ import h5py
 from math import ceil, log
 from scipy.integrate import romb
 
+# Parameters for plots. Shouldn't be here!
+params = {
+   'axes.labelsize': 8,
+   'text.fontsize': 8,
+   'legend.fontsize': 10,
+   'xtick.labelsize': 10,
+   'ytick.labelsize': 10,
+   'figure.figsize': [7, 9.3] # instead of 4.5, 4.5
+   }
+pyplot.rc(params)
+
 class OpticalModel(collections.MutableSequence):
     """Class to store and handle the oscillator model of the dielectric
     function.
@@ -302,7 +313,7 @@ class OpticalModel(collections.MutableSequence):
         return np.abs((__n-1)/(__n+1))**2
 
     def __singleAxisPlot(self, x, y, label):
-        pyplot.figure(figsize=(10, 7.5), dpi=None)
+        pyplot.figure()
         pyplot.xticks(fontsize=14)
         pyplot.yticks(fontsize=14)
         pyplot.plot(x, y, 'r-')
@@ -314,12 +325,12 @@ class OpticalModel(collections.MutableSequence):
         # Split e1 and e2 in two different y-axis!
         # from http://matplotlib.org/examples/api/two_scales.html
         fig, ax1 = pyplot.subplots()
-        ax1.plot(x, np.real(y), 'g-')
-        ax1.set_ylabel(labels[0], color = 'g', fontsize = 22)
+        ax1.plot(x, np.real(y), color = '#1F0965', linestyle='-')
+        ax1.set_ylabel(labels[0], color = '#1F0965', fontsize = 22)
         ax1.set_xlabel('Energy (eV)', fontsize = 18)
         ax2 = ax1.twinx()
-        ax2.plot(x, np.imag(y), 'r-')
-        ax2.set_ylabel(labels[1], color = 'r', fontsize = 22)
+        ax2.plot(x, np.imag(y), color = '#937A00', linestyle='-')
+        ax2.set_ylabel(labels[1], color = '#937A00', fontsize = 22)
         pyplot.title(self.name, fontsize = 18)
 
     def plot(self, window, *, flag = None, **kwargs):
