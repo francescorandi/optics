@@ -301,43 +301,46 @@ class OpticalModel(collections.MutableSequence):
         __n = self.refractiveIndex(window)
         return np.abs((__n-1)/(__n+1))**2
 
-    def _singleAxisPlot(self, x, y, label):
+    def __singleAxisPlot(self, x, y, label):
+        pyplot.figure(figsize=(10, 7.5), dpi=None)
+        pyplot.xticks(fontsize=14)
+        pyplot.yticks(fontsize=14)
         pyplot.plot(x, y, 'r-')
         pyplot.ylabel(label, color = 'r', fontsize = 22)
-        pyplot.xlabel('Energy (eV)', fontsize = 21)
-        pyplot.title(self.name, fontsize = 21)
+        pyplot.xlabel('Energy (eV)', fontsize = 18)
+        pyplot.title(self.name, fontsize = 18)
 
-    def _doubleAxisPlot(self, x, y, labels):
+    def __doubleAxisPlot(self, x, y, labels):
         # Split e1 and e2 in two different y-axis!
         # from http://matplotlib.org/examples/api/two_scales.html
         fig, ax1 = pyplot.subplots()
         ax1.plot(x, np.real(y), 'g-')
         ax1.set_ylabel(labels[0], color = 'g', fontsize = 22)
-        ax1.set_xlabel('Energy (eV)', fontsize = 21)
+        ax1.set_xlabel('Energy (eV)', fontsize = 18)
         ax2 = ax1.twinx()
         ax2.plot(x, np.imag(y), 'r-')
         ax2.set_ylabel(labels[1], color = 'r', fontsize = 22)
-        pyplot.title(self.name, fontsize = 21)
+        pyplot.title(self.name, fontsize = 18)
 
     def plot(self, window, *, flag = None, **kwargs):
         """Plots the dielectric function of the model.
         Possible flags"""
 
         if flag is "R":
-            self._singleAxisPlot(window, self.reflectivity(window), label = 'R')
+            self.__singleAxisPlot(window, self.reflectivity(window), label = 'R')
 
         elif flag is "e1":
-            self._singleAxisPlot(window, np.real(self.dielectricFunction(window)), r'$\varepsilon_1$')
+            self.__singleAxisPlot(window, np.real(self.dielectricFunction(window)), r'$\varepsilon_1$')
 
         elif flag is "e2":
-            self._singleAxisPlot(window, np.imag(self.dielectricFunction(window)), r'$\varepsilon_2$')
+            self.__singleAxisPlot(window, np.imag(self.dielectricFunction(window)), r'$\varepsilon_2$')
 
         elif flag is "s1":
             raise NotImplemented
-            self._singleAxisPlot(window, np.real(self.opticalConductivity(window)), r'$\sigma_1$')
+            self.__singleAxisPlot(window, np.real(self.opticalConductivity(window)), r'$\sigma_1$')
 
         elif flag is "nk":
-            self._doubleAxisPlot(window, self.refractiveIndex(window), labels = ['n', 'k'])
+            self.__doubleAxisPlot(window, self.refractiveIndex(window), labels = ['n', 'k'])
 
         else:
-            self._doubleAxisPlot(window, self.dielectricFunction(window), labels = [r'$\varepsilon_1$', r'$\varepsilon_2$'])
+            self.__doubleAxisPlot(window, self.dielectricFunction(window), labels = [r'$\varepsilon_1$', r'$\varepsilon_2$'])

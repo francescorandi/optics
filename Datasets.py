@@ -28,12 +28,11 @@ class Dataset():
 
         self.type = "Generic"
         self.unit = unit
-        self._name = name
 
         if name:
             self._name = name
         else:
-            self._name = "Optical Model %d" % self.__counter
+            self._name = "Dataset %d" % self.__counter
 
         if inputFile:
             self.loadRaw(inputFile, unit)
@@ -168,13 +167,13 @@ class Dataset():
         """Plots the data contained in the dataset."""
 
         pyplot.plot(self.x, self.y, label = self.name)
-        if self.unit == "eV":
-            pyplot.xlabel("Energy [eV]")
-        elif self.unit == "cm-1":
-            pyplot.xlabel("Wavenumber [cm-1]")
+        if self.unit is "eV":
+            pyplot.xlabel("Energy [eV]", fontsize = 18)
+        elif self.unit is "cm-1":
+            pyplot.xlabel("Wavenumber [cm-1]", fontsize = 18)
 
         if self.name:
-            pyplot.legend(loc=0)
+            pyplot.title(self.name, fontsize = 18)
 
 class ReflectivityDataset(Dataset):
     """Reflectivity oriented dataset container."""
