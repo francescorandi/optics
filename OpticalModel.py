@@ -8,6 +8,8 @@ import h5py
 from math import ceil, log
 from scipy.integrate import romb
 
+from Oscillators import * #importing to make the json load work!
+
 # Parameters for plots. Shouldn't be here!
 params = {
    'axes.labelsize': 8,
@@ -163,7 +165,7 @@ class OpticalModel(collections.MutableSequence):
             #Preparing oscillators
             _dump['oscillators'] = []
             for osc in self.__oscillators:
-                dump['oscillators'].append(repr(osc))
+                _dump['oscillators'].append(repr(osc))
 
             json.dump(_dump, f, sort_keys=True, indent=2)
             f.close()
@@ -172,11 +174,10 @@ class OpticalModel(collections.MutableSequence):
     def load(self, filename):
         """Imports a model from a json file."""
 
-        raise NotImplemented
-
         with open(filename, 'r') as f:
             _data = json.load(f)
-            if 'type' in _data.keys() and _data['type'] is 'model':
+            if 'type' in _data.keys() and _data['type'] == 'model':
+                print("yes")
                 self.name = _data['name']
                 self.desc = _data['desc']
 
@@ -184,7 +185,7 @@ class OpticalModel(collections.MutableSequence):
                     # Uses the representation of an oscillator to recreate it
                     self.add(eval(osc))
 
-    def save(self, target):
+    def savehdf5(self, target):
         """
         Saves model to hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.save()).
@@ -203,7 +204,7 @@ class OpticalModel(collections.MutableSequence):
 
         return True
 
-    def load(self, target):
+    def loadhdf5(self, target):
         """
         Loads model from hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.load()).
