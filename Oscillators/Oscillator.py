@@ -11,7 +11,7 @@ from scipy.constants import physical_constants
 hbar = physical_constants['natural unit of action in eV s'][0]
 
 
-def _parameter(name, default=0.0):
+def parameter(name, default=0.0):
     """Checks if the input provided for the attribute is valid."""
 
     storage_name = '_' + name
@@ -64,7 +64,7 @@ class BaseOscillator(metaclass=abc.ABCMeta):
     #     pass
 
     @abc.abstractmethod
-    def spectralWeight(self, window):
+    def spectralWeight(self):
         """Calculates and returns the area of the oscillator analytically or numerically."""
         pass
 

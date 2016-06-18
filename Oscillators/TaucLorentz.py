@@ -2,7 +2,7 @@
 """
 Tauc-Lorentz family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import numpy as np
 import scipy.constants as constants
@@ -29,10 +29,10 @@ class Tauc(BaseOscillator):
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', 0.0)
-    width = _parameter('width', 0.0)
-    position = _parameter('position', 0.0)
-    gap = _parameter('gap', 0.0)
+    amplitude = parameter('amplitude', 0.0)
+    width = parameter('width', 0.0)
+    position = parameter('position', 0.0)
+    gap = parameter('gap', 0.0)
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in

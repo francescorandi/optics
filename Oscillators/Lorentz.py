@@ -3,7 +3,7 @@
 Lorentz family of oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, _parameter, hbar
+from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import math
 import numpy as np
@@ -23,13 +23,13 @@ class Lorentz(BaseOscillator):
         $E_c$ energy center (eV).
     """
 
+    nparams = 3
+
     representation = "standard"
 
-    amplitude = _parameter('amplitude', 0.0)
-    width = _parameter('width', 0.0)
-    position = _parameter('position', 0.0)
-
-    nparams = 3
+    amplitude = parameter('amplitude', 0.0)
+    width = parameter('width', 0.0)
+    position = parameter('position', 0.0)
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Lorentz lineshape.
@@ -71,16 +71,16 @@ class Lorentz(BaseOscillator):
 
         return self.SW
 
-    def dielectricFunction(self, energy):
-        """Returns the complex dielectric function at the specified energy.
+    def dielectricFunction(self, window):
+        """Returns the complex dielectric function at the specified window.
 
         input
         =====
 
-        energy: Specified (range) of values to return.
+        window: Specified (range) of values to return.
         """
 
-        _den = math.pow(self.position, 2) - np.power(energy, 2) - 1.j * energy * self.width
+        _den = math.pow(self.position, 2) - np.power(window, 2) - 1.j * window * self.width
 
         self.dfunc = self.amplitude * np.divide(self.width * self.position, _den)
 

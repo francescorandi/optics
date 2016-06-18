@@ -3,7 +3,7 @@
 Drude family of oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, _parameter, hbar
+from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import numpy as np
 import scipy.constants as constants
@@ -22,12 +22,13 @@ class Drude(BaseOscillator):  # Using the base oscillator as parent
 
 
     """
+
     nparams = 2
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', 0.0)
-    width = _parameter('width', 0.0)
+    amplitude = parameter('amplitude', 0.0)
+    width = parameter('width', 0.0)
     position = 0  # Needed to allow sorting.
 
     def __init__(self, amplitude=0.0, width=0.0):

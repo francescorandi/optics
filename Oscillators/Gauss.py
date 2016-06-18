@@ -2,7 +2,7 @@
 """
 Gaussian family of oscillators.
 """
-from Oscillators.Oscillator import BaseOscillator, _parameter, hbar
+from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import numpy as np
 import scipy.special
@@ -11,7 +11,7 @@ from math import log, pow, sqrt
 
 
 class Gauss(BaseOscillator):
-    """Gausian lineshape of the form
+    """Gaussian lineshape of the form
 
     .. math::
 
@@ -23,13 +23,14 @@ class Gauss(BaseOscillator):
 
 
     """
+
     nparams = 3
 
     representation = "standard"
 
-    amplitude = _parameter('amplitude', 0.0)
-    width = _parameter('width', 0.0)
-    position = _parameter('position', 0.0)
+    amplitude = parameter('amplitude', 0.0)
+    width = parameter('width', 0.0)
+    position = parameter('position', 0.0)
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Gaussian lineshape as described in
@@ -72,13 +73,13 @@ class Gauss(BaseOscillator):
 
         return self.SW
 
-    def dielectricFunction(self, energy):
+    def dielectricFunction(self, window):
         """Returns the complex dielectric function at the specified energy.
 
         input
         =====
 
-        energy: Specified (range) of values to return.
+        window: Specified (range) of values to return.
         """
 
         LN2 = log(2)
@@ -86,20 +87,21 @@ class Gauss(BaseOscillator):
         G2 = pow(self.width, 2)
 
         _imag = self.amplitude * \
-                ( np.exp(-4.0 * LN2 * np.power(energy-self.position,2) / G2) \
-                - np.exp(-4.0 * LN2 * np.power(energy+self.position,2) / G2))
+            (np.exp(-4.0 * LN2 * np.power(window-self.position, 2) / G2) 
+           - np.exp(-4.0 * LN2 * np.power(window+self.position, 2) / G2))
 
         _real = self.amplitude * 2.0 / sqrt(np.pi) * \
-        (scipy.special.dawsn(2.0*SLN2 * (energy+self.position) / self.width) \
-        -scipy.special.dawsn(2.0*SLN2 * (energy-self.position) / self.width))
+            (scipy.special.dawsn(2.0*SLN2 * (window+self.position) / self.width)
+           - scipy.special.dawsn(2.0*SLN2 * (window-self.position) / self.width))
 
-        _den = energy + 1.j * self.width
-        self.dfunc = np.divide(-self.amplitude, energy * _den)
+        _den = window + 1.j * self.width
+        self.dfunc = np.divide(-self.amplitude, window * _den)
 
         return _real + 1.j*_imag
 
+
 class Gauss_genosc(Gauss):
-    """Gaussian lineshapeof the form
+    """Gaussian lineshape of the form
 
     .. math::
 
@@ -135,7 +137,7 @@ class Gauss_genosc(Gauss):
         super().__init__()
 
     def __repr__(self):
-        return 'Gaussian lineshape' #print also the parameters!
+        return 'Gaussian lineshape' # print also the parameters!
 
     @property
     def params(self):
@@ -156,8 +158,8 @@ class Gauss_genosc(Gauss):
         energy: Specified (range) of values to return.
         """
 
-        def _realDF(imaginatyPart):
-            #Add KK consistent part
+        def _realDF(imaginaryPart):
+            # TODO: Add KK consistent part
             return 0
 
         def _imagDF(energy):
@@ -174,7 +176,7 @@ class Gauss_genosc(Gauss):
 
         return self.dfunc
 
-    def spectralWeight(self, window = None):
+    def spectralWeight(self, window=None):
         """Returns the spectral weight of the oscillator.
 
         If the parameter window is specified, a partial weight is calculated.
@@ -184,8 +186,7 @@ class Gauss_genosc(Gauss):
             raise NotImplementedError('Not implemented yet')
 
         else:
-            _hbar = physical_constants['natural unit of action in eV s'][0]
-            _preFactor = constants.epsilon_0*sqrt(constants.pi)/4*(log(2))/_hbar**2
+            _preFactor = constants.epsilon_0*sqrt(constants.pi)/4*(log(2))/hbar**2
             return _preFactor*self.amplitude*self.energy*self.width
 
 

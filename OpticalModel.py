@@ -186,7 +186,7 @@ class OpticalModel(collections.MutableSequence):
                     # Uses the representation of an oscillator to recreate it
                     self.add(eval(osc))
 
-    def savehdf5(self, target):
+    def savetohdf5(self, target):
         """
         Saves model to hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.save()).
@@ -205,7 +205,7 @@ class OpticalModel(collections.MutableSequence):
 
         return True
 
-    def loadhdf5(self, target):
+    def loadfromhdf5(self, target):
         """
         Loads model from hdf5 file. Can be used directly or called
         from a higher level function (e.g. system.load()).

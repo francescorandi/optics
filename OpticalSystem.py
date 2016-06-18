@@ -1,43 +1,44 @@
+import h5py
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
-from . import OpticalModel as OpticalModel
-from . import Datasets as Datasets
-from . import Oscillators as Oscillators
-import h5py
 
-import matplotlib.pyplot as pyplot
+from . import Datasets
+from . import OpticalModel
 
-class OpticalSystem(object):
 
-    def __init__(self):
+class OpticalSystem:
+
+    def __init__(self, description=None):
         """Initialize the OpticalSystem"""
 
-        self.datasets = [] # List containing the imported datasets
-        self.models = [] # List containing the built optical models
+        self.datasets = []  # List of datasets
+        self.models = []  # List of optical models
         self.logger = ""
+        self.description = description
 
     @property
     def description(self):
-        return self._desc
+        return self._description
 
-    @amplitude.setter
-    def description(self, a):
-        self._desc = str(a)
+    @description.setter
+    def description(self, string):
+        self._description = string
 
     def save(self, filename):
         """Save everything to an hdf5 file"""
         f = h5py.File(filename, "w")
-        #Specify in the metadata that it contains a system
+        # Specify in the metadata that it contains a system
         f.attrs['type'] = 'optics system'
-        f.attrs['desc'] = self._desc
+        f.attrs['desc'] = self.description
 
-        #Save models
+        # Save models
         h5models = f.create_group("models")
         for model in self.models:
             h5model = h5models.create_group(model.name)
             model.savetohdf5(h5model)
 
-        #Save datasets
+        # Save datasets
         h5datasets = f.create_group("datasets")
         for i, dataset in enumerate(self.datasets):
             h5dataset = h5datasets.create_group(str(i))
@@ -47,13 +48,13 @@ class OpticalSystem(object):
     def load(self, filename):
         """Load everything from an hdf5 file"""
         f = h5py.File(filename, "r")
-        assert (f.attrs['type']=='optics system'), "This file does not contain a optics system"
+        assert (f.attrs['type'] == 'optics system'), "This file does not contain a optics system"
 
         for name, h5model in f['models'].items():
             om = self.createModel(name)
             om.loadfromhdf5(h5model)
 
-        #Load datasets
+        # Load datasets
         for i, hd5dataset in f['datasets'].items():
             dset = Datasets.Dataset()
             dset.loadfromhdf5(hd5dataset)
@@ -62,7 +63,7 @@ class OpticalSystem(object):
         f.close()
 
     def createModel(self, name = None):
-        """Creates an optical model with a given name returnign the instance of
+        """Creates an optical model with a given name returning the instance of
         the model created. Name is optional.
 
         This is a shortcut to creating a model and adding it manually to the
@@ -86,12 +87,12 @@ class OpticalSystem(object):
         for index, model in enumerate(self.models):
             print("\t".join([str(index), str(model)]))
 
-    def plotModel(self, opticalmodel, window, step = 0.01):
+    def plotModel(self, opticalmodel, window, step=0.01):
         """Plots a given optical model.
 
         Implementing only dielectric function"""
-        p = plt.figure() # check figure extra parameters
-        _window = arange(window[0], window[1], step = step)
+        p = plt.figure()  # check figure extra parameters
+        _window = np.arange(window[0], window[1], step=step)
         p.plot(_window, opticalmodel.dielectric_function(_window))
 
     def addData(self, x = None, y = None, name = None, inputFile = None, dataType = None, unitX = "eV", unitY = "Pure", desc = None, **kwargs):
@@ -211,7 +212,7 @@ class OpticalSystem(object):
         for dataset in datasets:
             epsilon = model.dielectric_function(dataset.x)
             processed = dataset.inputToType(epsilon)
-            e += np.sum(np.power(np.absolute(processed - dataset.y),2))
+            e += np.sum(np.power(np.absolute(processed - dataset.y), 2))
 
         #Constraints (should be contained in the model)
 
