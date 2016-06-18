@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
 
-from . import Datasets
-from . import OpticalModel
+import Datasets
+from  OpticalModel import OpticalModel
 
 
 class OpticalSystem:
@@ -62,19 +62,15 @@ class OpticalSystem:
 
         f.close()
 
-    def createModel(self, name = None):
+    def createModel(self, name=None):
         """Creates an optical model with a given name returning the instance of
         the model created. Name is optional.
 
         This is a shortcut to creating a model and adding it manually to the
         environment."""
 
-        if name:
-            om = OpticalModel.OpticalModel(name)
-            self.models.append(om)
-        else:
-            om = OpticalModel.OpticalModel()
-            self.models.append(om)
+        om = OpticalModel(name)
+        self.models.append(om)
 
         return om
 
@@ -86,14 +82,6 @@ class OpticalSystem:
         print("========================")
         for index, model in enumerate(self.models):
             print("\t".join([str(index), str(model)]))
-
-    def plotModel(self, opticalmodel, window, step=0.01):
-        """Plots a given optical model.
-
-        Implementing only dielectric function"""
-        p = plt.figure()  # check figure extra parameters
-        _window = np.arange(window[0], window[1], step=step)
-        p.plot(_window, opticalmodel.dielectric_function(_window))
 
     def addData(self, x = None, y = None, name = None, inputFile = None, dataType = None, unitX = "eV", unitY = "Pure", desc = None, **kwargs):
         self.datasets.append(Datasets.Dataset(x, y, name, inputFile, dataType, unitX, unitY, desc))
@@ -239,3 +227,6 @@ class OpticalSystem:
             jac=False)
 
         return True if verbose == False else model.show()
+
+if __name__ == '__main__':
+    system = OpticalSystem()
