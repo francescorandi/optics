@@ -62,6 +62,22 @@ class OpticalSystem:
 
         f.close()
 
+    def createModel(self, name = None):
+        """Creates an optical model with a given name returning the instance of
+        the model created. Name is optional.
+
+        This is a shortcut to creating a model and adding it manually to the
+        environment."""
+
+        if name:
+            om = OpticalModel.OpticalModel(name)
+            self.models.append(om)
+        else:
+            om = OpticalModel.OpticalModel()
+            self.models.append(om)
+
+        return om
+
     def listModels(self):
         """List the optical models in the environment."""
 
