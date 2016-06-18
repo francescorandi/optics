@@ -8,7 +8,8 @@ from Oscillators.Oscillator import BaseOscillator, _parameter, hbar
 import numpy as np
 import scipy.constants as constants
 
-class Drude(BaseOscillator): # Using the base oscillator as parent
+
+class Drude(BaseOscillator):  # Using the base oscillator as parent
     """Drude lineshape of the form
 
     .. math::
@@ -21,13 +22,13 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
 
     """
-    _nparams = 2
+    nparams = 2
 
     representation = "standard"
 
     amplitude = _parameter('amplitude', 0.0)
     width = _parameter('width', 0.0)
-    position = 0 # Needed to allow sorting.
+    position = 0  # Needed to allow sorting.
 
     def __init__(self, amplitude=0.0, width=0.0):
         """Defines a Drude lineshape.
@@ -41,7 +42,6 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
         self.amplitude = amplitude
         self.width = width
-
 
     def __repr__(self):
         return "Drude(amplitude = %f, width = %f)" % (self.amplitude, self.width)
@@ -62,7 +62,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
     def spectralWeight(self):
         """Returns the calculated spectral weight of the oscillator."""
 
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
         self.SW = _preFactor*self.amplitude
 
         return self.SW
@@ -81,6 +81,7 @@ class Drude(BaseOscillator): # Using the base oscillator as parent
 
         return self.dfunc
 
+
 class Drude_genosc(Drude):
     """Drude lineshape of the form
 
@@ -95,7 +96,7 @@ class Drude_genosc(Drude):
         As defined in WVase genosc.
     """
 
-    _nparams = 2
+    nparams = 2
 
     def __init__(self, amplitude=0., width=0.):
         """Defines a Drude lineshape.

@@ -9,6 +9,7 @@ import math
 import numpy as np
 import scipy.constants as constants
 
+
 class Lorentz(BaseOscillator):
     """Lorentzian lineshape of the form
 
@@ -22,14 +23,13 @@ class Lorentz(BaseOscillator):
         $E_c$ energy center (eV).
     """
 
-
     representation = "standard"
 
     amplitude = _parameter('amplitude', 0.0)
     width = _parameter('width', 0.0)
     position = _parameter('position', 0.0)
 
-    _nparams = 3
+    nparams = 3
 
     def __init__(self, amplitude=0.0, width=0.0, position=0.0):
         """Defines a Lorentz lineshape.
@@ -66,8 +66,8 @@ class Lorentz(BaseOscillator):
     def spectralWeight(self):
         """Returns the spectral weight of the oscillator."""
 
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
-        self.SW = _preFactor*self.amplitude*self.energy*self.width
+        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
+        self.SW = _preFactor*self.amplitude*self.position*self.width
 
         return self.SW
 
@@ -80,7 +80,7 @@ class Lorentz(BaseOscillator):
         energy: Specified (range) of values to return.
         """
 
-        _den = math.pow(self.position,2) - np.power(energy,2) - 1.j * energy * self.width
+        _den = math.pow(self.position, 2) - np.power(energy, 2) - 1.j * energy * self.width
 
         self.dfunc = self.amplitude * np.divide(self.width * self.position, _den)
 

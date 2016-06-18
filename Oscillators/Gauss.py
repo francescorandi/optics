@@ -9,6 +9,7 @@ import scipy.special
 import scipy.constants as constants
 from math import log, pow, sqrt
 
+
 class Gauss(BaseOscillator):
     """Gausian lineshape of the form
 
@@ -22,7 +23,7 @@ class Gauss(BaseOscillator):
 
 
     """
-    _nparams = 3
+    nparams = 3
 
     representation = "standard"
 
@@ -66,7 +67,7 @@ class Gauss(BaseOscillator):
     def spectralWeight(self):
         """Returns the spectral weight of the oscillator."""
 
-        _preFactor = constants.epsilon_0*constants.pi/2/_hbar**2
+        _preFactor = constants.epsilon_0*constants.pi/2/hbar**2
         self.SW = _preFactor*self.amplitude
 
         return self.SW
@@ -113,7 +114,7 @@ class Gauss_genosc(Gauss):
         consistent.
     """
 
-    _nparams = 3
+    nparams = 3
 
     def __init__(self, amplitude=0.0, energy=0.0, width=0.0):
         """Defines a Gaussian lineshape as described in

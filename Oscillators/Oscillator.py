@@ -5,12 +5,13 @@ Basic attributes and methods shared by all oscillators.
 import abc
 from numbers import Number
 
-import scipy.constants as constants
+#  import scipy.constants as constants
 from scipy.constants import physical_constants
 
 hbar = physical_constants['natural unit of action in eV s'][0]
 
-def _parameter(name, default = 0.0):
+
+def _parameter(name, default=0.0):
     """Checks if the input provided for the attribute is valid."""
 
     storage_name = '_' + name
@@ -28,14 +29,15 @@ def _parameter(name, default = 0.0):
                     raise TypeError
             if isinstance(value, complex):
                 raise TypeError
-            if value < 0.0: # no value should be below 0?
+            if value < 0.0:  # no value should be below 0?
                 raise ValueError
-            setattr(self, storage_name, float(value)) # casting to float
+            setattr(self, storage_name, float(value))  # casting to float
         except:
             print("The parameter '{}' should be a positive number. Value set at {}".format(name, default))
             setattr(self, storage_name, default)
 
     return attribute
+
 
 class BaseOscillator(metaclass=abc.ABCMeta):
     """Base class for all oscillator implementations."""
@@ -63,7 +65,7 @@ class BaseOscillator(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def spectralWeight(self, window):
-        """Calculates and returns the area of the oscillator analitically or numerically."""
+        """Calculates and returns the area of the oscillator analytically or numerically."""
         pass
 
     # @abc.abstractmethod

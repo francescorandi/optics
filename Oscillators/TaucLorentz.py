@@ -10,6 +10,7 @@ import scipy.constants as constants
 
 #import scipy.special
 
+
 class Tauc(BaseOscillator):
     """Tauc-Lorentz lineshape of the form
 
@@ -24,7 +25,7 @@ class Tauc(BaseOscillator):
 
     """
 
-    _nparams = 4
+    nparams = 4
 
     representation = "standard"
 
@@ -83,6 +84,7 @@ class Tauc(BaseOscillator):
         self.position = p[2]
         self.gap = p[3]
 
+
 class Tauc_genosc(Tauc):
     """Tauc-Lorentz lineshapeof the form
 
@@ -99,7 +101,7 @@ class Tauc_genosc(Tauc):
         and \epsilon_1 is determined via Kronig-Kramers.
     """
 
-    _nparams = 4
+    nparams = 4
 
     def __init__(self, amplitude=0.0, energy=0.0, width=0.0, gap=0.0):
         """Defines a Tauc-Lorentz lineshape as described in
@@ -119,9 +121,10 @@ class Tauc_genosc(Tauc):
         self.amplitude = amplitude
         self.energy = energy
         self.width = width
+        self.gap = gap
 
     def __repr__(self):
-        return 'Tauc-Lorentz lineshape' #print also the parameters!
+        return 'Tauc-Lorentz lineshape'  # print also the parameters!
 
     def dielectricFunction(self, energy):
         """

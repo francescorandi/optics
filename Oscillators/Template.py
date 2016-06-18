@@ -7,6 +7,7 @@ from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
 
 import numpy as np
 
+
 class oscillator(BaseOscillator):
     """Base class for all kinds of oscillators."""
 
@@ -47,9 +48,9 @@ class oscillator(BaseOscillator):
         pass
 
     def _translate_from_std(self):
-        #Implemented only in non standard representations
+        # Implemented only in non standard representations
         pass
 
     def _translate_to_std(self):
-        #Implemented only in non standard representations
+        # Implemented only in non standard representations
         pass

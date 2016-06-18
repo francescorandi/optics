@@ -1,14 +1,13 @@
 import collections
-import numpy as np
-import matplotlib.pyplot as pyplot
-import Oscillators
 import json
-import h5py
-
 from math import ceil, log
+
+import h5py
+import matplotlib.pyplot as pyplot
+import numpy as np
 from scipy.integrate import romb
 
-from Oscillators import * #importing to make the json load work!
+import Oscillators
 
 # Parameters for plots. Shouldn't be here!
 params = {
@@ -17,9 +16,10 @@ params = {
    'legend.fontsize': 10,
    'xtick.labelsize': 10,
    'ytick.labelsize': 10,
-   'figure.figsize': [7, 9.3] # instead of 4.5, 4.5
+   'figure.figsize': [7, 9.3]
    }
 pyplot.rc(params)
+
 
 class OpticalModel(collections.MutableSequence):
     """Class to store and handle the oscillator model of the dielectric
@@ -28,7 +28,7 @@ class OpticalModel(collections.MutableSequence):
 
     __counter = 0
 
-    def __init__(self, name = None, desc = None, oscillators = None):
+    def __init__(self, name=None, desc=None, oscillators=None):
         """Optical model built from a collection of oscillators.
 
         inputs (optional):
@@ -61,7 +61,7 @@ class OpticalModel(collections.MutableSequence):
     @staticmethod
     def __checkValue(value):
         if not isinstance(value, Oscillators.BaseOscillator):
-           raise TypeError("Only oscillators can be added.")
+            raise TypeError("Only oscillators can be added.")
 
     def __str__(self):
         return str(self.name)
@@ -86,7 +86,7 @@ class OpticalModel(collections.MutableSequence):
         self.__oscillators.insert(index, value)
 
     def __add__(self, other):
-        return OpticalModel(oscillators = self.__oscillators + other.__oscillators)
+        return OpticalModel(oscillators=self.__oscillators + other.__oscillators)
 
     @property
     def name(self):
@@ -94,7 +94,7 @@ class OpticalModel(collections.MutableSequence):
 
     @name.setter
     def name(self, string):
-         self._name = string
+        self._name = string
 
     @property
     def desc(self):
@@ -102,7 +102,7 @@ class OpticalModel(collections.MutableSequence):
 
     @desc.setter
     def desc(self, string):
-         self._desc = string
+        self._desc = string
 
     @property
     def params(self):
@@ -115,17 +115,17 @@ class OpticalModel(collections.MutableSequence):
     @params.setter
     def params(self, P):
         for oscillator in self.__oscillators:
-            oscillator.params = P[0:oscillator._nparams]
-            np.delete(P, slice(0,oscillator._nparams))
+            oscillator.params = P[0:oscillator.nparams]
+            np.delete(P, slice(0, oscillator.nparams))
 
     def sort(self):
         """Sorts the oscillators of the model in ascending order by energy."""
-        self.__oscillators.sort(key = lambda oscillator: oscillator.position)
+        self.__oscillators.sort(key=lambda oscillator: oscillator.position)
 
     def show(self):
         """Prints the collection of oscillators composing the model."""
-        print("Composition of: %s"% self.name)
-        print("Description: %s"% self.desc)
+        print("Composition of: %s" % self.name)
+        print("Description: %s" % self.desc)
         print("Index\t Type\t Attributes")
         print("==========================================")
         for index, oscillator in enumerate(self.__oscillators):
@@ -151,18 +151,19 @@ class OpticalModel(collections.MutableSequence):
     def dump(self, filename):
         """Exports the model as a json file."""
 
+        # TODO: Change into a IO context manager: with
         try:
             f = open(filename, 'w')
         except IOError:
             print("A file cannot be opened. Model not saved")
         else:
-            _dump = {}
+            _dump = dict()
             _dump['type'] = 'model'
             # Preparing metadata
             _dump['name'] = self.name
             _dump['desc'] = self.desc
 
-            #Preparing oscillators
+            # Preparing oscillators
             _dump['oscillators'] = []
             for osc in self.__oscillators:
                 _dump['oscillators'].append(repr(osc))
@@ -193,7 +194,7 @@ class OpticalModel(collections.MutableSequence):
         hdf5 can either be the filename or an hdf5 group.
         """
 
-        #Testing if target is a string, if true creates an hdf5 file.
+        # Testing if target is a string, if true creates an hdf5 file.
         if isinstance(target, str):
             hdf5 = h5py.File(target, "w")
 
@@ -235,8 +236,8 @@ class OpticalModel(collections.MutableSequence):
                 The calculated dielectric function.
         """
 
-        #_eps = np.zeros(len(window), dtype = np.cfloat)
-        _eps = np.ones(len(window), dtype = np.cfloat)
+        # _eps = np.zeros(len(window), dtype = np.cfloat)
+        _eps = np.ones(len(window), dtype=np.cfloat)
 
         for oscillator in self.__oscillators:
             _eps += oscillator.dielectricFunction(window)
@@ -254,12 +255,12 @@ class OpticalModel(collections.MutableSequence):
         """
         raise NotImplemented
 
-    def spectralWeight(self, limits = None):
+    def spectralWeight(self, limits=None):
         """Calculates the spectral weight of the model. If an energy
          window is give, a partial spectral weight is returned.
 
          Parameter:
-         limits -- A touple indicating begining and end where to calculate
+         limits -- A tuple indicating beginning and end where to calculate
                    the partial spectral weight of the model.
 
          Returns:
@@ -270,7 +271,7 @@ class OpticalModel(collections.MutableSequence):
 
         if not limits:
             for oscillator in self.__oscillators:
-                _sw += oscillator.spectralWeight()
+                _sw += oscillator.spectralWeight
 
         else:
             # Using Romberg: See http://young.physics.ucsc.edu/242/romberg.pdf
@@ -318,28 +319,28 @@ class OpticalModel(collections.MutableSequence):
         pyplot.xticks(fontsize=14)
         pyplot.yticks(fontsize=14)
         pyplot.plot(x, y, 'r-')
-        pyplot.ylabel(label, color = 'r', fontsize = 22)
-        pyplot.xlabel('Energy (eV)', fontsize = 18)
-        pyplot.title(self.name, fontsize = 18)
+        pyplot.ylabel(label, color='r', fontsize=22)
+        pyplot.xlabel('Energy (eV)', fontsize=18)
+        pyplot.title(self.name, fontsize=18)
 
     def __doubleAxisPlot(self, x, y, labels):
         # Split e1 and e2 in two different y-axis!
         # from http://matplotlib.org/examples/api/two_scales.html
         fig, ax1 = pyplot.subplots()
-        ax1.plot(x, np.real(y), color = '#1F0965', linestyle='-')
-        ax1.set_ylabel(labels[0], color = '#1F0965', fontsize = 22)
-        ax1.set_xlabel('Energy (eV)', fontsize = 18)
+        ax1.plot(x, np.real(y), color='#1F0965', linestyle='-')
+        ax1.set_ylabel(labels[0], color='#1F0965', fontsize=22)
+        ax1.set_xlabel('Energy (eV)', fontsize=18)
         ax2 = ax1.twinx()
-        ax2.plot(x, np.imag(y), color = '#937A00', linestyle='-')
-        ax2.set_ylabel(labels[1], color = '#937A00', fontsize = 22)
-        pyplot.title(self.name, fontsize = 18)
+        ax2.plot(x, np.imag(y), color='#937A00', linestyle='-')
+        ax2.set_ylabel(labels[1], color='#937A00', fontsize=22)
+        pyplot.title(self.name, fontsize=18)
 
-    def plot(self, window, *, flag = None, **kwargs):
+    def plot(self, window, *, flag=None, **kwargs):
         """Plots the dielectric function of the model.
         Possible flags"""
 
         if flag is "R":
-            self.__singleAxisPlot(window, self.reflectivity(window), label = 'R')
+            self.__singleAxisPlot(window, self.reflectivity(window), label='R')
 
         elif flag is "e1":
             self.__singleAxisPlot(window, np.real(self.dielectricFunction(window)), r'$\varepsilon_1$')
@@ -352,7 +353,7 @@ class OpticalModel(collections.MutableSequence):
             self.__singleAxisPlot(window, np.real(self.opticalConductivity(window)), r'$\sigma_1$')
 
         elif flag is "nk":
-            self.__doubleAxisPlot(window, self.refractiveIndex(window), labels = ['n', 'k'])
+            self.__doubleAxisPlot(window, self.refractiveIndex(window), labels=['n', 'k'])
 
         else:
-            self.__doubleAxisPlot(window, self.dielectricFunction(window), labels = [r'$\varepsilon_1$', r'$\varepsilon_2$'])
+            self.__doubleAxisPlot(window, self.dielectricFunction(window), labels=[r'$\varepsilon_1$', r'$\varepsilon_2$'])
