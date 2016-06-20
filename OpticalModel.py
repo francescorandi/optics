@@ -148,15 +148,10 @@ class OpticalModel(collections.MutableSequence):
 
         self.__oscillators = []
 
-    def dump(self, filename):
+    def save(self, filename):
         """Exports the model as a json file."""
 
-        # TODO: Change into a IO context manager: with
-        try:
-            f = open(filename, 'w')
-        except IOError:
-            print("A file cannot be opened. Model not saved")
-        else:
+        with open(filename, 'w') as f:
             _dump = dict()
             _dump['type'] = 'model'
             # Preparing metadata
@@ -169,7 +164,6 @@ class OpticalModel(collections.MutableSequence):
                 _dump['oscillators'].append(repr(osc))
 
             json.dump(_dump, f, sort_keys=True, indent=2)
-            f.close()
             print("Model is saved as: ", filename)
 
     def load(self, filename):
@@ -185,6 +179,7 @@ class OpticalModel(collections.MutableSequence):
                 for osc in _data['oscillators']:
                     # Uses the representation of an oscillator to recreate it
                     self.add(eval(osc))
+            print("Model % was loaded!" % str(self.name))
 
     def savetohdf5(self, target):
         """
@@ -224,7 +219,7 @@ class OpticalModel(collections.MutableSequence):
 
     def build_from_parameters(self, Parameter, Type, Constraint):
         self.clear()
-        self.Oscillator = self.__params2oscillator(Parameter, Type, Constraint)
+        self.oscillator = self.__params2oscillator(Parameter, Type, Constraint)
 
     def dielectricFunction(self, window):
         """Calculates the complex dielectric function of the model.
@@ -251,9 +246,10 @@ class OpticalModel(collections.MutableSequence):
         window -- Set of points where to calculate the optical conductivity.
 
         Returns:
-                The calculated optical conductivity.
+                The calculated complex optical conductivity \sigma = \imath\omega\varepsilon.
         """
-        raise NotImplemented
+        # TODO: Check formula and units!
+        return window * self.dielectricFunction(window)
 
     def spectralWeight(self, limits=None):
         """Calculates the spectral weight of the model. If an energy

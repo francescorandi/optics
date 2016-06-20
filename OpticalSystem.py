@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 import Datasets
-from  OpticalModel import OpticalModel
+from OpticalModel import OpticalModel
 
 
 class OpticalSystem:
