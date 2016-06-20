@@ -3,7 +3,7 @@
 Basic attributes and methods shared by all oscillators.
 """
 
-from Oscillators.Oscillator import BaseOscillator, _paramValidator, hbar
+from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import numpy as np
 
@@ -16,11 +16,7 @@ class oscillator(BaseOscillator):
 
     def __init__(self):
 
-        # Attribute for quick lookup for calculated dielectric function values
-        self.dfunc = None
-
-        # Attribute for quick lookup for calculated spectral weight (SW) value
-        self.SW = None
+        super().__init__()  # Calling the BaseOscillator constructor
 
     # Probably __repr__ is not needed here
     def __repr__(self):

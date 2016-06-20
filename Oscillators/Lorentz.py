@@ -42,6 +42,8 @@ class Lorentz(BaseOscillator):
         position: center position of the lineshape (eV)
         """
 
+        super().__init__()
+
         self.amplitude = amplitude
         self.width = width
         self.position = position

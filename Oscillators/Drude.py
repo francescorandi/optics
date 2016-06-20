@@ -41,6 +41,8 @@ class Drude(BaseOscillator):  # Using the base oscillator as parent
         width: width of the lineshape (eV)
         """
 
+        super().__init__()
+
         self.amplitude = amplitude
         self.width = width
 

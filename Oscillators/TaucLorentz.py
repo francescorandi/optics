@@ -47,6 +47,8 @@ class Tauc(BaseOscillator):
         gap: energy gap
         """
 
+        super().__init__()
+
         self.amplitude = amplitude
         self.width = width
         self.position = position

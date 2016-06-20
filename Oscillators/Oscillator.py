@@ -42,6 +42,15 @@ def parameter(name, default=0.0):
 class BaseOscillator(metaclass=abc.ABCMeta):
     """Base class for all oscillator implementations."""
 
+    def __init__(self, *args, **kwargs):
+        # Attribute for quick lookup for calculated dielectric function values
+        self.dfunc = None
+        # Attribute for quick lookup for calculated spectral weight (SW) value
+        self.SW = None
+
+    def params(self):
+        pass
+
     @abc.abstractmethod
     def __str__(self):
         pass

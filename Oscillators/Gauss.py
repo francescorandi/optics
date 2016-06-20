@@ -44,6 +44,8 @@ class Gauss(BaseOscillator):
         position: center position of the oscillator (eV)
         """
 
+        super().__init__()
+
         self.amplitude = amplitude
         self.width = width
         self.position = position
