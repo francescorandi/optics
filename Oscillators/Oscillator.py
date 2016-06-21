@@ -25,8 +25,9 @@ def parameter(name, default=0.0):
         try:
             # If it's a number
             if not isinstance(value, Number):
-                if not value.isdigit():
+                if not float(value):
                     raise TypeError
+                value = float(value)
             if isinstance(value, complex):
                 raise TypeError
             if value < 0.0:  # no value should be below 0?
