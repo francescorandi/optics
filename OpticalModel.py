@@ -28,12 +28,13 @@ class OpticalModel(collections.MutableSequence):
 
     __counter = 0
 
-    def __init__(self, name=None, desc=None, oscillators=None):
+    def __init__(self, name=None, desc=None, label=None, oscillators=None):
         """Optical model built from a collection of oscillators.
 
         inputs (optional):
             name: name of the model being built.
             desc: description of the model.
+            label: extra attribute to have an extra label, e.g., temperature.
             oscillators: an iterable of oscillator instances to be added when
             constructing the optical model."""
 
@@ -45,6 +46,7 @@ class OpticalModel(collections.MutableSequence):
             self._name = "Optical Model %d" % self.__counter
 
         self._desc = desc
+        self._label = label
 
         if oscillators:
             self.__oscillators = oscillators
@@ -103,6 +105,14 @@ class OpticalModel(collections.MutableSequence):
     @desc.setter
     def desc(self, string):
         self._desc = string
+
+    @property
+    def label(self):
+        return self._label
+
+    @label.setter
+    def label(self, value):
+        self._label = value
 
     @property
     def params(self):
