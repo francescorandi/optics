@@ -8,6 +8,7 @@ import numpy as np
 from scipy.integrate import romb
 
 import Oscillators
+from Oscillators import Drude, Lorentz, Gauss
 
 # Parameters for plots. Shouldn't be here!
 params = {
@@ -182,14 +183,13 @@ class OpticalModel(collections.MutableSequence):
         with open(filename, 'r') as f:
             _data = json.load(f)
             if 'type' in _data.keys() and _data['type'] == 'model':
-                print("yes")
                 self.name = _data['name']
                 self.desc = _data['desc']
 
                 for osc in _data['oscillators']:
                     # Uses the representation of an oscillator to recreate it
                     self.add(eval(osc))
-            print("Model % was loaded!" % str(self.name))
+            print("Model '%s' was loaded!" % filename)
 
     def savetohdf5(self, target):
         """
@@ -229,7 +229,15 @@ class OpticalModel(collections.MutableSequence):
 
     def build_from_parameters(self, Parameter, Type, Constraint):
         self.clear()
-        self.oscillator = self.__params2oscillator(Parameter, Type, Constraint)
+        self.append(self.__params2oscillator(Parameter, Type, Constraint))
+
+    @property
+    def einf(self):
+        return self._einf
+
+    @einf.setter
+    def einf(self, value):
+        self._einf = value
 
     def dielectricFunction(self, window):
         """Calculates the complex dielectric function of the model.

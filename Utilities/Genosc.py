@@ -28,10 +28,8 @@ class GenoscModel:
                 raise TypeError
             next(reader)  # Skipping row indicating number of oscillators and other info
             eps1 = next(reader)[0]  # Getting epsilon 1 extra info
+            next(reader)  # Getting rid of the energy range line
             try:
-                # TODO: Take out the rest of the parameters for the model!
-                for i in range(3):  # Getting rid of the header
-                    next(reader)
                 # Reading the oscillators
                 for row in reader:
                     row = row[0].split()
