@@ -39,6 +39,8 @@ class OpticalModel(collections.MutableSequence):
             oscillators: an iterable of oscillator instances to be added when
             constructing the optical model."""
 
+        # Metadata Section
+
         type(self).__counter += 1
 
         if name:
@@ -49,10 +51,14 @@ class OpticalModel(collections.MutableSequence):
         self._desc = desc
         self._label = label
 
+        # Physics section
+
         if oscillators:
             self.__oscillators = oscillators
         else:
             self.__oscillators = []
+
+        self._einf = 1.0
 
     def __del__(self):
         type(self).__counter -= 1
@@ -239,6 +245,20 @@ class OpticalModel(collections.MutableSequence):
     def einf(self, value):
         self._einf = value
 
+    def _pole(self, window, intensity, position):
+        # For a single value the ** operator is faster than the pow() function
+        # For an array, apparently the pow() function is faster
+
+        return np.divide(intensity, position**2 - pow(window, 2))
+
+    def poles(self, window, intensity_low, position_low, intensity_high, position_high):
+        _tmp = 0.0
+        if intensity_low != 0:
+            _tmp += self._pole(window, intensity_low, position_low)
+        if intensity_high != 0:
+            _tmp += self._pole(window, intensity_high, position_high)
+        return _tmp
+
     def dielectricFunction(self, window):
         """Calculates the complex dielectric function of the model.
 
@@ -250,10 +270,12 @@ class OpticalModel(collections.MutableSequence):
         """
 
         # _eps = np.zeros(len(window), dtype = np.cfloat)
-        _eps = np.ones(len(window), dtype=np.cfloat)
+        #_eps = np.ones(len(window), dtype=np.cfloat)
 
         for oscillator in self.__oscillators:
             _eps += oscillator.dielectricFunction(window)
+
+        _eps += self._einf  # Broadcasting einf
 
         return _eps
 
