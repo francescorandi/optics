@@ -1,0 +1,26 @@
+{
+  "desc": null,
+  "eps1": {
+    "einf": 1.0,
+    "pole1": [
+      0.0,
+      0.1
+    ],
+    "pole2": [
+      85.4310441220902,
+      7.0
+    ]
+  },
+  "name": "Optical Model 2",
+  "oscillators": [
+    "Drude(amplitude = 0.000000, width = 0.336880)",
+    "Lorentz(amplitude = 8.636116, width = 0.655790, position = 0.708053)",
+    "Lorentz(amplitude = 0.854490, width = 1.126907, position = 0.905951)",
+    "Gauss(amplitude = 2.088418, width = 2.039723, position = 0.578758)",
+    "Gauss(amplitude = 0.772043, width = 2.345114, position = 0.418675)",
+    "Gauss(amplitude = 0.495388, width = 2.588039, position = 0.317953)",
+    "Gauss(amplitude = 1.802933, width = 2.901208, position = 0.902359)",
+    "Gauss(amplitude = 4.108754, width = 4.000422, position = 2.527684)"
+  ],
+  "type": "model"
+}

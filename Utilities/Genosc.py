@@ -20,6 +20,7 @@ class GenoscModel:
         self.desc = desc
         self.oscillators = []
         self.einf = None
+        self.poles = None
 
         with open(filename, 'r') as f:
             reader = csv.reader(f)
@@ -28,8 +29,11 @@ class GenoscModel:
             if _tmp != 'GENOSC':
                 raise TypeError
             next(reader)  # Skipping row indicating number of oscillators and other info
-            eps1 = next(reader)[0]  # Getting epsilon 1 extra info
-            self.einf = eps1[0]
+            eps1 = next(reader)[0].split()  # Getting epsilon 1 extra info
+            print(eps1)
+            self.einf = eps1[4]  # Extracting einf
+            self.poles = eps1[0:4]  # Extracting the poles
+            self.poles.reverse()
             next(reader)  # Getting rid of the energy range line
             try:
                 # Reading the oscillators
@@ -46,5 +50,7 @@ class GenoscModel:
 
     def t(self):
         _om = OpticalModel(name=self.name, desc=self.desc, oscillators=self.oscillators)
-        _om.einf = self.einf
+        print(self.einf)
+        _om.einf = float(self.einf)
+        _om.poles = [float(val) for val in self.poles]
         return _om

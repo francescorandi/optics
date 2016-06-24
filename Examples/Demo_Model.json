@@ -1,0 +1,9 @@
+{
+  "desc": null,
+  "name": "Demo Model.json",
+  "oscillators": [
+    "Lorentz(amplitude = 1.000000, width = 0.200000, position = 1.500000)",
+    "Gauss(amplitude = 1.000000, width = 0.400000, position = 3.000000)"
+  ],
+  "type": "model"
+}

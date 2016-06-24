@@ -59,6 +59,8 @@ class OpticalModel(collections.MutableSequence):
             self.__oscillators = []
 
         self._einf = 1.0
+        self._polelow = [0.1, 0]
+        self._polehigh = [10, 0]
 
     def __del__(self):
         type(self).__counter -= 1
@@ -143,6 +145,11 @@ class OpticalModel(collections.MutableSequence):
         """Prints the collection of oscillators composing the model."""
         print("Composition of: %s" % self.name)
         print("Description: %s" % self.desc)
+        print("======Epsilon 1==========")
+        print("epsilon_1 at infinity: %f" % self.einf)
+        print("Pole 1: {}@{} eV".format(*self.poles[0]))
+        print("Pole 2: {}@{} eV".format(*self.poles[1]))
+        print("======Oscillators (epsilon 2)=============")
         print("Index\t Type\t Attributes")
         print("==========================================")
         for index, oscillator in enumerate(self.__oscillators):
@@ -175,6 +182,12 @@ class OpticalModel(collections.MutableSequence):
             _dump['name'] = self.name
             _dump['desc'] = self.desc
 
+            # Preparing epsilon1
+
+            _dump['eps1'] = {'einf': self.einf,
+                             'pole1': self._polelow,
+                             'pole2': self._polehigh}
+
             # Preparing oscillators
             _dump['oscillators'] = []
             for osc in self.__oscillators:
@@ -191,6 +204,9 @@ class OpticalModel(collections.MutableSequence):
             if 'type' in _data.keys() and _data['type'] == 'model':
                 self.name = _data['name']
                 self.desc = _data['desc']
+
+                self.einf = _data['eps1']['einf']
+                self.poles = [*_data['eps1']['pole1'], *_data['eps1']['pole2']]
 
                 for osc in _data['oscillators']:
                     # Uses the representation of an oscillator to recreate it
@@ -245,19 +261,20 @@ class OpticalModel(collections.MutableSequence):
     def einf(self, value):
         self._einf = value
 
+    @property
+    def poles(self):
+        return self._polelow, self._polehigh
+
+    @poles.setter
+    def poles(self, value):
+        self._polelow = value[0:2]
+        self._polehigh = value[2:4]
+
     def _pole(self, window, intensity, position):
         # For a single value the ** operator is faster than the pow() function
         # For an array, apparently the pow() function is faster
 
-        return np.divide(intensity, position**2 - pow(window, 2))
-
-    def poles(self, window, intensity_low, position_low, intensity_high, position_high):
-        _tmp = 0.0
-        if intensity_low != 0:
-            _tmp += self._pole(window, intensity_low, position_low)
-        if intensity_high != 0:
-            _tmp += self._pole(window, intensity_high, position_high)
-        return _tmp
+        return np.divide(intensity, position ** 2 - pow(window, 2))
 
     def dielectricFunction(self, window):
         """Calculates the complex dielectric function of the model.
@@ -269,13 +286,18 @@ class OpticalModel(collections.MutableSequence):
                 The calculated dielectric function.
         """
 
+        _eps = self._einf  # Broadcasting einf
         # _eps = np.zeros(len(window), dtype = np.cfloat)
         #_eps = np.ones(len(window), dtype=np.cfloat)
 
         for oscillator in self.__oscillators:
             _eps += oscillator.dielectricFunction(window)
 
-        _eps += self._einf  # Broadcasting einf
+        # Checking if poles have any intensity
+        if self.poles[0][1] != 0:
+            _eps += self._pole(window, *self.poles[0])
+        if self.poles[1][1] != 0:
+            _eps += self._pole(window, *self.poles[1])
 
         return _eps
 
