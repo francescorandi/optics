@@ -6,6 +6,7 @@ from Oscillators.Oscillator import BaseOscillator, parameter, hbar
 
 import numpy as np
 import scipy.constants as constants
+import cmath
 #from math import log, pow, sqrt
 
 #import scipy.special
@@ -68,7 +69,41 @@ class Tauc(BaseOscillator):
 
         energy: Specified (range) of values to return.
         """
-        raise NotImplementedError
+        return _compute_tauc_real(energy)+1.0j*_compute_tauc_imaginary(energy)
+        
+    def _compute_tauc_real(self, energy):
+        E0 = self.position
+        A = self.amplitude
+        C = self.width #gamma
+        Eg = self.gap
+        x = energy
+        
+        epsinf = 0.0
+	alfa = sqrt(4.0*np.power(E0,2) - np.power(C,2))
+	g = cmath.sqrt(np.power(E0,2) - np.power(C,2) / 2.0)
+	aln = (np.power(Eg,2) - np.power(E0,2))*np.power(x,2) + np.power(Eg,2) * np.power(C,2) - np.power(E0,2) * (np.power(E0,2) + 3.0 * np.power(Eg,2))
+	aatan = (np.power(x,2) - np.power(E0,2))*(np.power(E0,2) + np.power(Eg,2)) + np.power(Eg,2)*np.power(C,2)
+	csi4 = np.power( np.power(x,2) - np.power(g,2), 2) + np.power(alfa,2) * np.power(C,2) / 4.0
+	tauc1 = epsinf + \
+			0.5 * A * C / np.pi / csi4 * aln / alfa / E0 * np.log( (np.power(E0,2) + np.power(Eg,2) + alfa*Eg) / (np.power(E0,2) + np.power(Eg,2) - alfa*Eg) ) - \
+			A / np.pi / csi4 * aatan / E0 * ( np.pi - np.arctan( (2.0*Eg + alfa)/C ) + np.arctan( (-2.0*Eg+alfa) / C ) ) + \
+			2.0 * A * E0 / np.pi / csi4 / alfa * Eg * ( np.power(x,2) - np.power(g,2) ) * ( np.pi + 2.0 * np.arctan( 2.0 * (np.power(g,2) - np.power(Eg,2)) / alfa / C ) ) -\
+			A * E0 * C / np.pi / csi4 * np.divide( np.power(x,2) + np.power(Eg,2) , x) * np.log( abs(x-Eg) / (x+Eg) ) +\
+			2.0 * A * E0 * C / np.pi / csi4 * Eg * np.log( abs(x-Eg) * (x+Eg) / sqrt( np.power(np.power(E0,2)-np.power(Eg,2),2) + np.power(Eg,2)*np.power(C,2) ) )
+			
+	return tauc1
+        
+    
+    def _compute_tauc_imaginary(self, energy):
+        E0 = self.position
+        A = self.amplitude
+        C = self.width #gamma
+        Eg = self.gap
+        x = energy
+        
+        im = 0.5*(np.sign(x-Eg)+1.0) * A * E0 * C * np.divide( np.power(x-Eg,2), ( np.power( np.power(x,2) - np.power(E0,2), 2) + np.power(C,2) * np.power(x,2) ) * x )
+        
+        return im
 
     def spectralWeight(self):
         """Returns the spectral weight of the oscillator."""
